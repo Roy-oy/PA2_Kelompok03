@@ -1,0 +1,2 @@
+C:/pa32/PA2/mobile-app/android/app/.cxx/Debug/2o545919/x86_64/CMakeFiles/edit_cache.dir
+C:/pa32/PA2/mobile-app/android/app/.cxx/Debug/2o545919/x86_64/CMakeFiles/rebuild_cache.dir
