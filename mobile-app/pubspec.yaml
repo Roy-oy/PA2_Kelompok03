@@ -75,6 +75,8 @@ flutter:
   assets:
     - assets/images/
     - assets/images/logo.png
+    - assets/images/doctor.jpg
+    - assets/images/dokter.jpeg
 
     - assets/fonts/
 

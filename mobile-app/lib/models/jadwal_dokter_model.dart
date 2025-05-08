@@ -3,7 +3,7 @@ class JadwalDokterModel {
   final String namaDokter;
   final String spesialis;
   final String email;
-  final String hari;
+  final String schedule_date;
   final String jamMulai;
   final String jamSelesai;
   final String ruangan;
@@ -15,7 +15,7 @@ class JadwalDokterModel {
     required this.namaDokter,
     required this.spesialis,
     required this.email,
-    required this.hari,
+    required this.schedule_date,
     required this.jamMulai,
     required this.jamSelesai,
     required this.ruangan,
@@ -28,13 +28,13 @@ class JadwalDokterModel {
       id: json['id'],
       namaDokter: json['namaDokter'] ?? '-',
       spesialis: json['spesialis'] ?? '-',
-      email: json['email'],
-      hari: json['hari'] ?? '-',
+      email: json['email'] ?? '-',
+      schedule_date: json['schedule_date'] ?? '-',
       jamMulai: json['jamMulai'] ?? '-',
       jamSelesai: json['jamSelesai'] ?? '-',
       ruangan: json['ruangan'] ?? '-',
       status: json['status'] ?? 'Tidak Aktif',
-      fotoProfil: json['foto_profil'],
+      fotoProfil: json['foto_profil'] ?? '-',
     );
   }
 }

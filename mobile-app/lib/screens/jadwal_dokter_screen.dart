@@ -60,15 +60,15 @@ class _JadwalDokterScreenState extends State<JadwalDokterScreen> {
           : _jadwalList.isEmpty
               ? const Center(child: Text('Tidak ada jadwal ditemukan.'))
               : ListView.builder(
+                  padding: const EdgeInsets.all(16),
                   itemCount: _jadwalList.length,
                   itemBuilder: (context, index) {
                     final jadwal = _jadwalList[index];
                     return Card(
-                      margin: const EdgeInsets.all(16),
-                      elevation: 0,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      elevation: 2,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey.shade200),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -101,15 +101,14 @@ class _JadwalDokterScreenState extends State<JadwalDokterScreen> {
                                       const SizedBox(height: 4),
                                       Row(
                                         children: [
-                                          Icon(Icons.medical_services_outlined, 
-                                            size: 16, 
-                                            color: Colors.blue[800]
-                                          ),
+                                          Icon(Icons.medical_services,
+                                              size: 16,
+                                              color: Colors.blue[800]),
                                           const SizedBox(width: 4),
                                           Text(
                                             jadwal.spesialis,
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
+                                            style: const TextStyle(
+                                              color: Colors.grey,
                                             ),
                                           ),
                                         ],
@@ -117,15 +116,44 @@ class _JadwalDokterScreenState extends State<JadwalDokterScreen> {
                                       const SizedBox(height: 4),
                                       Row(
                                         children: [
-                                          Icon(Icons.email_outlined,
-                                            size: 16,
-                                            color: Colors.blue[800]
-                                          ),
+                                          Icon(Icons.email,
+                                              size: 16,
+                                              color: Colors.blue[800]),
                                           const SizedBox(width: 4),
                                           Text(
                                             jadwal.email,
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.calendar_today,
+                                              size: 16,
+                                              color: Colors.blue[800]),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            jadwal.schedule_date.split('T')[0], // This will remove everything after T
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.access_time,
+                                              size: 16,
+                                              color: Colors.blue[800]),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${jadwal.jamMulai} - ${jadwal.jamSelesai}',
+                                            style: const TextStyle(
+                                              color: Colors.grey,
                                             ),
                                           ),
                                         ],
@@ -135,54 +163,12 @@ class _JadwalDokterScreenState extends State<JadwalDokterScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Icon(Icons.calendar_today_outlined,
-                                  size: 16,
-                                  color: Colors.blue[800]
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  jadwal.hari,
-                                  style: TextStyle(
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              children: [
-                                _buildTimeChip(jadwal.jamMulai),
-                                if (jadwal.jamSelesai != jadwal.jamMulai)
-                                  _buildTimeChip(jadwal.jamSelesai),
-                              ],
-                            ),
                           ],
                         ),
                       ),
                     );
                   },
                 ),
-    );
-  }
-
-  Widget _buildTimeChip(String time) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.blue),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        time,
-        style: const TextStyle(
-          color: Colors.blue,
-          fontSize: 12,
-        ),
-      ),
     );
   }
 }

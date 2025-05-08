@@ -1,0 +1,2 @@
+D:/KULIAH/SEMESTER 4/PA 2/PA2/mobile-app/android/app/.cxx/Debug/96a2pp1u/x86_64/CMakeFiles/edit_cache.dir
+D:/KULIAH/SEMESTER 4/PA 2/PA2/mobile-app/android/app/.cxx/Debug/96a2pp1u/x86_64/CMakeFiles/rebuild_cache.dir

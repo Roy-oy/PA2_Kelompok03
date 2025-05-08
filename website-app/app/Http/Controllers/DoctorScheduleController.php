@@ -66,12 +66,12 @@ class DoctorScheduleController extends Controller
         $schedule = DoctorSchedule::findOrFail($id);
 
         $request->validate([
-            'doctor_id' => 'sometimes|exists:doctors,id',
-            'schedule_date' => 'sometimes|date',
-            'start_time' => 'sometimes|date_format:H:i',
-            'end_time' => 'sometimes|date_format:H:i|after:start_time',
-            'cluster_id' => 'sometimes|exists:clusters,id',
-            'status' => 'sometimes|in:active,inactive',
+            'doctor_id' => 'required|exists:doctors,id',
+            'schedule_date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'cluster_id' => 'required|exists:clusters,id',
+            'status' => 'required|in:active,inactive',
         ]);
 
         $schedule->update($request->all());

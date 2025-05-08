@@ -5,7 +5,6 @@ import 'package:mobile_puskesmas/screens/feedback_1.dart';
 import 'package:mobile_puskesmas/screens/jadwal_dokter_screen.dart';
 import 'package:mobile_puskesmas/screens/medical_detail_screen.dart';
 import 'package:mobile_puskesmas/screens/medical_history_screen.dart';
-import 'package:mobile_puskesmas/screens/medical_screen.dart';
 import 'package:mobile_puskesmas/screens/pengumuman.dart';
 // import 'package:mobile_puskesmas/screens/patient_registration_screen.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
