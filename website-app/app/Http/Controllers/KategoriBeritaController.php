@@ -31,7 +31,6 @@ class KategoriBeritaController extends Controller
         $request->validate([
             'nama_kategori' => 'required|string',
             'deskripsi' => 'required|string',
-            'kategori_berita_id' => 'required|exists:kategori_berita,id',
         ]);
 
         KategoriBerita::create($request->all());
@@ -57,7 +56,6 @@ class KategoriBeritaController extends Controller
         $request->validate([
             'nama_kategori' => 'required|string',
             'deskripsi' => 'required|string',
-            'kategori_berita_id' => 'required|exists:kategori_berita,id',
         ]);
 
         $kategori = KategoriBerita::findOrFail($id);
