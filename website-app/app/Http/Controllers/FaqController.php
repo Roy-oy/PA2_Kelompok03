@@ -10,7 +10,7 @@ class FaqController extends Controller
 {
     public function index()
     {
-        $faqs = Faq::paginate(10); // Menggunakan pagination dengan 10 item per halaman
+        $faqs = Faq::paginate(10); 
         return view('dashboard.faq.index', compact('faqs'));
     }
 
