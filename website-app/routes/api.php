@@ -57,3 +57,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pasien/medical-records', [MedicalRecordApiController::class, 'index']);
     Route::get('/pasien/medical-records/{id}', [MedicalRecordApiController::class, 'show']);
 });
+//faq
+
+

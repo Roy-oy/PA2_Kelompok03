@@ -86,6 +86,10 @@
                         <i class="fas fa-layer-group w-5 h-5 mr-3 {{ request()->is('pengumuman*') ? 'text-green-600' : 'text-gray-500 group-hover:text-green-600' }} transition-colors"></i>
                         <span class="{{ request()->is('pengumuman*') ? 'font-medium' : '' }}">Pengumuman</span>
                     </a>
+                    <a href="/faq" class="{{ request()->is('faq*') ? 'flex items-center px-4 py-2.5 text-gray-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors group' : 'flex items-center px-4 py-2.5 text-gray-600 hover:bg-green-50 hover:text-gray-800 rounded-lg transition-colors group' }}">
+                        <i class="fas fa-question-circle w-5 h-5 mr-3 {{ request()->is('faq*') ? 'text-green-600' : 'text-gray-500 group-hover:text-green-600' }} transition-colors"></i>
+                        <span class="{{ request()->is('faq*') ? 'font-medium' : '' }}">FAQ</span>
+                    </a>
                 </div>
             </li>
         </ul>
