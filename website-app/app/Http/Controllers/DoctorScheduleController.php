@@ -28,7 +28,7 @@ class DoctorScheduleController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'doctor_id' => 'required|exists:doctors,id',
-            'schedule_date' => 'required|date',
+            'schedule_day' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'cluster_id' => 'required|exists:clusters,id',
@@ -49,8 +49,7 @@ class DoctorScheduleController extends Controller
 
     public function show()
     {
-        // $schedule = DoctorSchedule::with(['doctor', 'cluster'])->findOrFail($id);
-        // return view('dashboard.jadwal_dokter.show', compact('schedule'));
+      
     }
 
     public function edit($id)
@@ -67,7 +66,7 @@ class DoctorScheduleController extends Controller
 
         $request->validate([
             'doctor_id' => 'required|exists:doctors,id',
-            'schedule_date' => 'required|date',
+            'schedule_day' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'cluster_id' => 'required|exists:clusters,id',

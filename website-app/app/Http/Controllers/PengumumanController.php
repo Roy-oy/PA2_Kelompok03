@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Pengumuman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class PengumumanController extends Controller
 {
@@ -21,23 +23,29 @@ class PengumumanController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'judul' => 'required|string|max:255',
             'isi_pengumuman' => 'required',
-            'tanggal_upload' => 'required|date',
-            'file_surat' => 'nullable|file|mimes:pdf,doc,docx|max:2048'
+            'tanggal_upload' => 'required|date|after_or_equal:today',
+            'file_surat' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
         $data = $request->only(['judul', 'isi_pengumuman', 'tanggal_upload']);
+        
+        // Set status based on tanggal_upload
+        $inputDate = Carbon::parse($request->tanggal_upload);
+        $data['status'] = $inputDate->isSameDay(Carbon::today()) ? 'publish' : 'pending';
 
         if ($request->hasFile('file_surat')) {
             $file = $request->file('file_surat');
             $filename = time() . '_' . $file->getClientOriginalName();
-            
-            // Store directly to the public disk
             $path = Storage::disk('public')->putFileAs('surat', $file, $filename);
-            
-            // Save the correct path for database
             $data['file_surat'] = $path;
         }
 
@@ -59,14 +67,24 @@ class PengumumanController extends Controller
 
     public function update(Request $request, Pengumuman $pengumuman)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'judul' => 'required|string|max:255',
             'isi_pengumuman' => 'required',
-            'tanggal_upload' => 'required|date',
-            'file_surat' => 'nullable|file|mimes:pdf,doc,docx|max:2048'
+            'tanggal_upload' => 'required|date|after_or_equal:today',
+            'file_surat' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
         $data = $request->only(['judul', 'isi_pengumuman', 'tanggal_upload']);
+        
+        // Set status based on tanggal_upload
+        $inputDate = Carbon::parse($request->tanggal_upload);
+        $data['status'] = $inputDate->isSameDay(Carbon::today()) ? 'publish' : 'pending';
 
         if ($request->hasFile('file_surat')) {
             // Delete old file if exists
@@ -76,11 +94,7 @@ class PengumumanController extends Controller
 
             $file = $request->file('file_surat');
             $filename = time() . '_' . $file->getClientOriginalName();
-            
-            // Store directly to the public disk
             $path = Storage::disk('public')->putFileAs('surat', $file, $filename);
-            
-            // Save the correct path for database
             $data['file_surat'] = $path;
         }
 
@@ -93,7 +107,7 @@ class PengumumanController extends Controller
     public function destroy(Pengumuman $pengumuman)
     {
         if ($pengumuman->file_surat) {
-            Storage::delete('public/' . $pengumuman->file_surat);
+            Storage::disk('public')->delete($pengumuman->file_surat);
         }
 
         $pengumuman->delete();

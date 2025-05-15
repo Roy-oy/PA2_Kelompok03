@@ -42,12 +42,13 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Isi</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Upload</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File Surat</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($pengumuman as $index => $item)
+                    @forelse($pengumuman as $index => $item)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ $loop->iteration }}
@@ -56,18 +57,27 @@
                                 <div class="font-medium text-gray-900">{{ $item->judul }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $item->isi_pengumuman }}                            
+                                {{ Str::limit($item->isi_pengumuman, 50) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ \Carbon\Carbon::parse($item->tanggal_upload)->format('d/m/Y') }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@if($item->file_surat)
-                                <a href="{{ asset('storage/' . $item->file_surat) }}" 
-                                   target="_blank" class="text-blue-600 hover:underline flex items-center">
-                                    <i class="fas fa-file-download mr-1 text-blue-500"></i>
-                                    {{ \Illuminate\Support\Str::after($item->file_surat, '_') }} {{-- tampilkan nama asli --}}
-                                </a>
-                            @endif
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {{ $item->dynamic_status === 'publish' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                    {{ $item->dynamic_status === 'publish' ? 'Publish' : 'Pending' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                @if($item->file_surat)
+                                    <a href="{{ Storage::url($item->file_surat) }}" 
+                                       target="_blank" class="text-blue-600 hover:underline flex items-center">
+                                        <i class="fas fa-file-download mr-1 text-blue-500"></i>
+                                        {{ \Illuminate\Support\Str::after($item->file_surat, '_') }}
+                                    </a>
+                                @else
+                                    -
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-2">
@@ -84,15 +94,13 @@
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
-
-                    @if(count($pengumuman) == 0)
+                    @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-sm font-medium text-gray-500">
+                            <td colspan="7" class="px-6 py-4 text-center text-sm font-medium text-gray-500">
                                 Tidak ada data pengumuman.
                             </td>
                         </tr>
-                    @endif
+                    @endforelse
                 </tbody>
             </table>
         </div>

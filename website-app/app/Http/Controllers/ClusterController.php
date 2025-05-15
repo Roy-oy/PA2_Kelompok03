@@ -10,10 +10,10 @@ class ClusterController extends Controller
      * Tampilkan daftar cluster.
      */
     public function index()
-{
-    $clusters = Cluster::latest()->paginate(5); // Menampilkan 10 data per halaman
-    return view('dashboard.klaster.index', compact('clusters'));
-}
+    {
+        $clusters = Cluster::latest()->paginate(5); // Menampilkan 5 data per halaman
+        return view('dashboard.klaster.index', compact('clusters'));
+    }
 
     /**
      * Tampilkan form untuk menambahkan cluster baru.
@@ -29,7 +29,7 @@ class ClusterController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required|in:Klaster 1,Klaster 2,Klaster 3,Klaster 4,Klaster 5',
+            'nama' => 'required|string|max:255',
             'description' => 'required|string',
         ]);
 
@@ -54,7 +54,7 @@ class ClusterController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nama' => 'required|in:Klaster 1,Klaster 2,Klaster 3,Klaster 4,Klaster 5',
+            'nama' => 'required|string|max:255',
             'description' => 'required|string',
         ]);
 

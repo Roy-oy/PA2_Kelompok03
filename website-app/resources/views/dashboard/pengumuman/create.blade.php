@@ -21,7 +21,7 @@
                             Judul Pengumuman <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="judul" id="judul" value="{{ old('judul') }}" required
-                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('judul') border-red-500 @enderror">
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('judul') border-red-500 @enderror">
                         @error('judul')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -33,7 +33,7 @@
                             Isi Pengumuman <span class="text-red-500">*</span>
                         </label>
                         <textarea name="isi_pengumuman" id="isi_pengumuman" rows="5" required
-                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('isi_pengumuman') border-red-500 @enderror">{{ old('isi_pengumuman') }}</textarea>
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('isi_pengumuman') border-red-500 @enderror">{{ old('isi_pengumuman') }}</textarea>
                         @error('isi_pengumuman')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -44,8 +44,9 @@
                         <label for="tanggal_upload" class="block text-sm font-medium text-gray-700 mb-1">
                             Tanggal Upload <span class="text-red-500">*</span>
                         </label>
-                        <input type="date" name="tanggal_upload" id="tanggal_upload" value="{{ old('tanggal_upload', date('Y-m-d')) }}" required
-                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('tanggal_upload') border-red-500 @enderror">
+                        <input type="date" name="tanggal_upload" id="tanggal_upload" value="{{ old('tanggal_upload', now()->format('Y-m-d')) }}" min="{{ now()->format('Y-m-d') }}" required
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('tanggal_upload') border-red-500 @enderror">
+                        <p class="mt-1 text-xs text-gray-500">Pilih tanggal hari ini atau di masa depan. Status akan otomatis 'Publish' untuk hari ini atau 'Pending' untuk tanggal berikutnya.</p>
                         @error('tanggal_upload')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -57,7 +58,7 @@
                             File Surat
                         </label>
                         <input type="file" name="file_surat" id="file_surat"
-                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('file_surat') border-red-500 @enderror">
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('file_surat') border-red-500 @enderror">
                         <p class="mt-1 text-xs text-gray-500">Format yang diperbolehkan: PDF, DOC, DOCX. Maksimal 2MB</p>
                         @error('file_surat')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

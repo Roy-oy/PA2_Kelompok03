@@ -480,14 +480,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // TODO: Navigate to edit profile
           },
         ),
-        const SizedBox(height: 10),
-        _buildActionButton(
-          icon: Iconsax.setting,
-          title: 'Konfigurasi Server',
-          onTap: () {
-            _showServerConfigDialog(context);
-          },
-        ),
         const SizedBox(height: 20),
         _buildLogoutButton(context),
       ],

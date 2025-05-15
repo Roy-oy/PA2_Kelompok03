@@ -61,15 +61,22 @@
                                 @enderror
                             </div>
 
-                            <!-- Tanggal Jadwal -->
+                            <!-- Hari Jadwal -->
                             <div>
-                                <label for="schedule_date" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Tanggal Jadwal <span class="text-red-500">*</span>
+                                <label for="schedule_day" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Hari Jadwal <span class="text-red-500">*</span>
                                 </label>
-                                <input type="date" id="schedule_date" name="schedule_date" value="{{ old('schedule_date') }}" 
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('schedule_date') border-red-500 @enderror"
+                                <select id="schedule_day" name="schedule_day" 
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('schedule_day') border-red-500 @enderror" 
                                     required>
-                                @error('schedule_date')
+                                    <option value="">-- Pilih Hari --</option>
+                                    @foreach(['Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu'] as $value => $label)
+                                        <option value="{{ $value }}" {{ old('schedule_day') == $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('schedule_day')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
