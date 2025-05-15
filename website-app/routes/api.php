@@ -57,6 +57,8 @@ Route::get('/pengumuman/{pengumuman}', [PengumumanApiController::class, 'show'])
 // FAQ routes
 Route::get('/faq', [FaqApiController::class, 'index']);
 Route::get('/faq/{faq}', [FaqApiController::class, 'show']);
+Route::get('/faqs', [FaqController::class, 'getAllFaqs']);
+
 
 // Rute rekam medis - memerlukan autentikasi
 Route::middleware('auth:sanctum')->group(function () {
