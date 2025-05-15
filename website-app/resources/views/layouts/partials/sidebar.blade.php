@@ -65,7 +65,7 @@
                 <button @click="activeDropdown = activeDropdown === 'services' ? null : 'services'" class="w-full flex items-center justify-between px-4 py-2.5 text-gray-600 hover:bg-green-50 hover:text-gray-800 rounded-lg transition-colors group">
                     <div class="flex items-center">
                         <i class="fas fa-hand-holding-medical w-5 h-5 mr-3 text-gray-500 group-hover:text-green-600 transition-colors"></i>
-                        <span>Layanan</span>
+                        <span>Media & Informasi</span>
                     </div>
                     <i class="fas" :class="activeDropdown === 'services' ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
                 </button>

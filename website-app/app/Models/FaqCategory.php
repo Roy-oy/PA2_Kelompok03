@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Faq extends Model
+class FaqCategory extends Model
 {
     use HasFactory;
 
@@ -15,16 +15,15 @@ class Faq extends Model
      * @var array
      */
     protected $fillable = [
-        'category_id',
-        'question',
-        'answer'
+        'name',
+        'slug'
     ];
 
     /**
-     * Relasi ke kategori
+     * Relasi ke FAQ
      */
-    public function category()
+    public function faqs()
     {
-        return $this->belongsTo(FaqCategory::class, 'category_id');
+        return $this->hasMany(Faq::class, 'category_id');
     }
 }
