@@ -10,9 +10,11 @@ class FaqApiController extends Controller
 {
     public function index()
     {
-        $faq = Faq::latest()->get()->map(function ($faq) {
+        $faqs = Faq::latest()->get()->map(function ($faq) {
+            $allowedCategories = ['umum', 'pendaftaran', 'layanan', 'pembayaran'];
             return [
                 'id' => $faq->id,
+                'kategori' => in_array(strtolower($faq->kategori), $allowedCategories) ? $faq->kategori : 'umum',
                 'question' => $faq->question ?? '-',
                 'answer' => $faq->answer ?? '-',
             ];
@@ -21,16 +23,24 @@ class FaqApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Daftar FAQ',
-            'data' => $faq
+            'data' => $faqs
         ]);
     }
 
     public function show(Faq $faq)
     {
+        $allowedCategories = ['umum', 'pendaftaran', 'layanan', 'pembayaran'];
+        $faqData = [
+            'id' => $faq->id,
+            'kategori' => in_array(strtolower($faq->kategori), $allowedCategories) ? $faq->kategori : 'umum',
+            'question' => $faq->question ?? '-',
+            'answer' => $faq->answer ?? '-',
+        ];
+
         return response()->json([
             'success' => true,
             'message' => 'Detail FAQ',
-            'data' => $faq
+            'data' => $faqData
         ]);
     }
 }

@@ -31,96 +31,56 @@
             </h2>
         </div>
         
-        @if(($allFaqs && $allFaqs->count() > 0) || ($uncategorizedFaqs && $uncategorizedFaqs->count() > 0))
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pertanyaan</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jawaban</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @php
-                        $index = 1;
-                    @endphp
-
-                    <!-- Categorized FAQs -->
-                    @foreach($categorizedFaqs as $category)
-                        @foreach($category->faqs as $faq)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $index++ }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">{{ $faq->question }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ Str::limit($faq->answer, 100) }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
-                                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                    {{ $category->name }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <a href="{{ route('faq.show', $faq->id) }}" class="text-blue-500 hover:text-blue-700">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('faq.edit', $faq->id) }}" class="text-yellow-500 hover:text-yellow-700">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('faq.destroy', $faq->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-700">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+        @if($faqs->count() > 0)
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pertanyaan</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jawaban</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($faqs as $faq)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $loop->iteration + $faqs->firstItem() - 1 }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ $faq->question }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">{{ Str::limit($faq->answer, 100) }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium {{ $faq->kategori_color }}">
+                                        {{ ucfirst($faq->kategori) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        </a>
+                                        <a href="{{ route('faq.edit', $faq->id) }}" class="text-yellow-500 hover:text-yellow-700">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form action="{{ route('faq.destroy', $faq->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-500 hover:text-red-700">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
                         @endforeach
-                    @endforeach
-
-                    <!-- Uncategorized FAQs -->
-                    @foreach($uncategorizedFaqs as $faq)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $index++ }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $faq->question }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">{{ Str::limit($faq->answer, 100) }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                            <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
-                                Tanpa Kategori
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex space-x-2">
-                                <a href="{{ route('faq.show', $faq->id) }}" class="text-blue-500 hover:text-blue-700">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{{ route('faq.edit', $faq->id) }}" class="text-yellow-500 hover:text-yellow-700">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{{ route('faq.destroy', $faq->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        <div class="px-6 py-3">
-            {{ $uncategorizedFaqs->links() }}
-        </div>
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-3">
+                {{ $faqs->links() }}
+            </div>
         @else
-        <div class="p-6 text-center text-gray-500">
-            Belum ada data FAQ yang tersedia
-        </div>
+            <div class="p-6 text-center text-gray-500">
+                Belum ada data FAQ yang tersedia
+            </div>
         @endif
     </div>
 </div>

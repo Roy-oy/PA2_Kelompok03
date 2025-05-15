@@ -28,7 +28,6 @@ class _FAQScreenState extends State<FAQScreen>
     FAQCategory(name: 'Pendaftaran', icon: Icons.app_registration),
     FAQCategory(name: 'Layanan', icon: Icons.medical_services_outlined),
     FAQCategory(name: 'Pembayaran', icon: Icons.payment),
-    FAQCategory(name: 'Feedback', icon: Icons.rate_review_outlined),
   ];
 
   @override
@@ -328,8 +327,8 @@ class _FAQScreenState extends State<FAQScreen>
               indicatorPadding: EdgeInsets.zero,
               indicatorSize: TabBarIndicatorSize.label,
               tabAlignment: TabAlignment.start,
-              tabs: _categories.map((category) {
-                bool isFirstTab = category.name == 'Umum';
+              tabs: _categories.map((kategori) {
+                bool isFirstTab = kategori.name == 'Umum';
                 return Tab(
                   height: 40,
                   child: Container(
@@ -340,9 +339,9 @@ class _FAQScreenState extends State<FAQScreen>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(category.icon, size: 16),
+                        Icon(kategori.icon, size: 16),
                         const SizedBox(width: 6),
-                        Text(category.name),
+                        Text(kategori.name),
                       ],
                     ),
                   ),
@@ -395,7 +394,7 @@ class _FAQScreenState extends State<FAQScreen>
             child: TabBarView(
               controller: _tabController,
               children: _categories.map((category) {
-                final categoryItems = _faqList.where((faq) => faq.category == category.name).toList();
+                final categoryItems = _faqList.where((faq) => faq.kategori.toLowerCase() == category.name.toLowerCase()).toList();
                 return RefreshIndicator(
                   color: const Color(0xFF06489F),
                   onRefresh: _loadFaqData,
@@ -441,8 +440,6 @@ class _FAQScreenState extends State<FAQScreen>
         return 'Informasi mengenai layanan-layanan yang tersedia';
       case 3:
         return 'Detail metode pembayaran dan informasi biaya';
-      case 4:
-        return 'Cara memberikan masukan dan pelaporan masalah';
       default:
         return '';
     }

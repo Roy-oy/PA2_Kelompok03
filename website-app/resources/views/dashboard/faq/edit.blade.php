@@ -15,23 +15,40 @@
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 gap-6">
+                    <!-- Kategori -->
+                    <div class="mb-4">
+                        <label for="kategori" class="block text-sm font-medium text-gray-700 mb-1">Kategori <span class="text-red-500">*</span></label>
+                        <select name="kategori" id="kategori" required
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('kategori') border-red-500 @enderror">
+                            <option value="">-- Pilih Kategori --</option>
+                            @foreach($kategoriOptions as $kategori)
+                                <option value="{{ $kategori }}" {{ old('kategori', $faq->kategori) == $kategori ? 'selected' : '' }}>
+                                    {{ ucfirst($kategori) }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('kategori')
+                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Pertanyaan -->
-                    <div>
-                        <label for="pertanyaan" class="block text-sm font-medium text-gray-700">Pertanyaan <span class="text-red-500">*</span></label>
-                        <input type="text" name="pertanyaan" id="pertanyaan" value="{{ old('pertanyaan', $faq->pertanyaan) }}" required
-                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('pertanyaan') border-red-500 @enderror">
-                        @error('pertanyaan')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <div class="mb-4">
+                        <label for="question" class="block text-sm font-medium text-gray-700 mb-1">Pertanyaan <span class="text-red-500">*</span></label>
+                        <input type="text" name="question" id="question" value="{{ old('question', $faq->question) }}" required
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('question') border-red-500 @enderror">
+                        @error('question')
+                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <!-- Jawaban -->
-                    <div>
-                        <label for="jawaban" class="block text-sm font-medium text-gray-700">Jawaban <span class="text-red-500">*</span></label>
-                        <textarea name="jawaban" id="jawaban" rows="5" required
-                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('jawaban') border-red-500 @enderror">{{ old('jawaban', $faq->jawaban) }}</textarea>
-                        @error('jawaban')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <div class="mb-4">
+                        <label for="answer" class="block text-sm font-medium text-gray-700 mb-1">Jawaban <span class="text-red-500">*</span></label>
+                        <textarea name="answer" id="answer" rows="5" required
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('answer') border-red-500 @enderror">{{ old('answer', $faq->answer) }}</textarea>
+                        @error('answer')
+                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
