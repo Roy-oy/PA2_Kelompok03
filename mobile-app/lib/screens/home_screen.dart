@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Cek apakah pengguna sudah login dan merupakan pasien
       final bool isLoggedIn = await AuthService().isLoggedIn();
-      final bool isPatient = await AuthService().isPatient();
+      final bool isPatient = await AuthService().isAppUser();
 
       if (!isLoggedIn || !isPatient) {
         setState(() {
@@ -49,12 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       // Jika sudah login dan merupakan pasien, ambil data rekam medis
-      final records = await PasienService().getMedicalRecords();
 
-      setState(() {
-        _medicalRecords = records;
-        _isLoading = false;
-      });
+    
     } catch (e) {
       print('Error loading medical records: $e');
       setState(() {
@@ -397,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
               GestureDetector(
                 onTap: () async {
                   final isLoggedIn = await AuthService().isLoggedIn();
-                  final isPatient = await AuthService().isPatient();
+                  final isPatient = await AuthService().isAppUser();
 
                   if (!isLoggedIn) {
                     ScaffoldMessenger.of(context).showSnackBar(

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_puskesmas/models/user_model.dart';
@@ -17,9 +16,18 @@ class AuthService {
 
   AuthService._internal();
 
-  // User login
+  // Validate email to ensure it uses @gmail.com
+  void _validateEmail(String email) {
+    if (!email.endsWith('@gmail.com')) {
+      throw Exception('Email harus menggunakan domain @gmail.com');
+    }
+  }
+
+  // User login with email
   Future<UserModel?> login(String email, String password) async {
     try {
+      _validateEmail(email);
+
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/login'),
         headers: {'Content-Type': 'application/json'},
@@ -29,60 +37,22 @@ class AuthService {
         }),
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
         final user = UserModel.fromJson(data['data']);
-
-        // Save user data to SharedPreferences
         await _saveUserData(user);
-
         return user;
       } else {
-        final data = jsonDecode(response.body);
         throw Exception(data['message'] ?? 'Login gagal');
       }
     } on SocketException {
-      throw Exception(
-          'Tidak dapat terhubung ke server. Pastikan server sedang berjalan dan alamat IP sudah benar.');
+      throw Exception('Tidak dapat terhubung ke server. Periksa koneksi Anda.');
     } on HttpException {
-      throw Exception('Terjadi kesalahan HTTP saat menghubungi server.');
+      throw Exception('Terjadi kesalahan HTTP saat login.');
     } on FormatException {
-      throw Exception('Format respons dari server tidak valid.');
+      throw Exception('Format respons server tidak valid.');
     } catch (e) {
       throw Exception('Terjadi kesalahan: ${e.toString()}');
-    }
-  }
-
-  // User login with NIK
-  Future<UserModel?> loginWithNik(String nik, String password) async {
-    try {
-      print('Attempting to login with NIK: $nik');
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/login-with-nik'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'nik': nik,
-          'password': password,
-        }),
-      );
-
-      print('Login response status: ${response.statusCode}');
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final user = UserModel.fromJson(data['data']);
-
-        // Save user data to SharedPreferences
-        await _saveUserData(user);
-
-        return user;
-      } else {
-        final data = jsonDecode(response.body);
-        throw Exception(data['message'] ?? 'Login gagal');
-      }
-    } catch (e) {
-      throw Exception('Terjadi kesalahan saat login: ${e.toString()}');
     }
   }
 
@@ -96,6 +66,8 @@ class AuthService {
     String nik,
   ) async {
     try {
+      _validateEmail(email);
+
       final userData = {
         'name': name,
         'email': email,
@@ -105,59 +77,37 @@ class AuthService {
         'nik': nik,
       };
 
-      print('Attempting to register with data: ${jsonEncode(userData)}');
-
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(userData),
       );
 
-      print('Registration response status: ${response.statusCode}');
-      print('Registration response body: ${response.body}');
-
-      if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 201 && data['success'] == true) {
         final user = UserModel.fromJson(data['data']);
-
-        // Save user data to SharedPreferences
         await _saveUserData(user);
-
         return user;
       } else {
-        Map<String, dynamic> responseData;
-        try {
-          responseData = jsonDecode(response.body);
-        } catch (e) {
-          responseData = {'message': 'Tidak dapat memproses respon server'};
+        String errorMessage = data['message'] ?? 'Registrasi gagal';
+        if (data['errors'] != null) {
+          errorMessage += ': ${data['errors'].toString()}';
         }
-
-        String errorMessage = responseData['message'] ?? 'Registrasi gagal';
-        if (responseData.containsKey('errors')) {
-          final errors = responseData['errors'];
-          errorMessage += ': ${errors.toString()}';
-        }
-
-        if (responseData.containsKey('error')) {
-          errorMessage += ' - ${responseData['error']}';
-        }
-
         throw Exception(errorMessage);
       }
     } on SocketException {
-      throw Exception(
-          'Tidak dapat terhubung ke server. Pastikan server sedang berjalan dan alamat IP sudah benar.');
+      throw Exception('Tidak dapat terhubung ke server. Periksa koneksi Anda.');
     } on HttpException {
-      throw Exception('Terjadi kesalahan HTTP saat menghubungi server.');
+      throw Exception('Terjadi kesalahan HTTP saat registrasi.');
     } on FormatException {
-      throw Exception('Format respons dari server tidak valid.');
+      throw Exception('Format respons server tidak valid.');
     } catch (e) {
       throw Exception('Terjadi kesalahan: ${e.toString()}');
     }
   }
 
-  // Register as patient
-  Future<UserModel?> registerAsPatient(Map<String, dynamic> patientData) async {
+  // Register as app user
+  Future<UserModel?> registerAsAppUser(Map<String, dynamic> appUserData) async {
     try {
       final user = await getUserData();
 
@@ -165,93 +115,40 @@ class AuthService {
         throw Exception('User tidak ditemukan');
       }
 
-      print(
-          'Making API request to register-as-patient with token: ${user.token?.substring(0, 10)}...');
-
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/register-as-patient'),
+        Uri.parse('${ApiConfig.baseUrl}/register-as-app-user'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${user.token}',
         },
-        body: jsonEncode(patientData),
+        body: jsonEncode(appUserData),
       );
 
-      print('Register-as-patient response status: ${response.statusCode}');
-      print('Register-as-patient response body: ${response.body}');
-
-      if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        final userData = data['data'];
-
-        print(
-            'Successfully registered as patient. Patient data received: ${userData['patient'] != null}');
-
-        // Create updated user model
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 201 && data['success'] == true) {
         final updatedUser = user.copyWith(
-          isPatient: userData['is_patient'] ?? false,
-          patientData: userData['patient'] != null
-              ? PatientModel.fromJson(userData['patient'])
+          isAppUser: data['data']['is_app_user'] ?? false,
+          appUserData: data['data']['app_user_data'] != null
+              ? AppUserModel.fromJson(data['data']['app_user_data'])
               : null,
         );
 
-        print('Updated user model - Is patient: ${updatedUser.isPatient}');
-        print(
-            'Updated user model - Has patient data: ${updatedUser.patientData != null}');
-
-        if (updatedUser.patientData != null) {
-          print('Patient data fields:');
-          print('- ID: ${updatedUser.patientData!.id}');
-          print('- RM: ${updatedUser.patientData!.noRm}');
-          print('- Name: ${updatedUser.patientData!.nama}');
-          print('- Address: ${updatedUser.patientData!.alamat}');
-        }
-
-        // Save updated user data to SharedPreferences
         await _saveUserData(updatedUser);
-        print('Updated user data saved to SharedPreferences');
-
         return updatedUser;
       } else {
-        final data = jsonDecode(response.body);
-        String errorMessage = data['message'] ?? 'Pendaftaran pasien gagal';
-
-        if (data.containsKey('errors')) {
-          final errors = data['errors'];
-          print('Validation errors: $errors');
-
-          // Format validation errors for better readability
-          List<String> errorList = [];
-          if (errors is Map) {
-            errors.forEach((key, value) {
-              if (value is List) {
-                errorList.add('$key: ${value.join(", ")}');
-              } else {
-                errorList.add('$key: $value');
-              }
-            });
-          }
-
-          if (errorList.isNotEmpty) {
-            errorMessage += ': ${errorList.join("; ")}';
-          }
+        String errorMessage = data['message'] ?? 'P	urlah pengguna aplikasi gagal';
+        if (data['errors'] != null) {
+          errorMessage += ': ${data['errors'].toString()}';
         }
-
         throw Exception(errorMessage);
       }
     } on SocketException {
-      print('Socket exception when registering as patient - connection issue');
-      throw Exception(
-          'Tidak dapat terhubung ke server. Pastikan server sedang berjalan dan alamat IP sudah benar.');
+      throw Exception('Tidak dapat terhubung ke server. Periksa koneksi Anda.');
     } on HttpException {
-      print('HTTP exception when registering as patient');
-      throw Exception('Terjadi kesalahan HTTP saat menghubungi server.');
+      throw Exception('Terjadi kesalahan HTTP saat pendaftaran pengguna aplikasi.');
     } on FormatException {
-      print(
-          'Format exception when registering as patient - invalid response format');
-      throw Exception('Format respons dari server tidak valid.');
+      throw Exception('Format respons server tidak valid.');
     } catch (e) {
-      print('Unknown exception when registering as patient: ${e.toString()}');
       throw Exception('Terjadi kesalahan: ${e.toString()}');
     }
   }
@@ -262,12 +159,8 @@ class AuthService {
       final user = await getUserData();
 
       if (user == null) {
-        print('Cannot get profile: No user data found in local storage');
         throw Exception('User tidak ditemukan');
       }
-
-      print(
-          'Making API request to get profile with token: ${user.token?.substring(0, 10)}...');
 
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/profile'),
@@ -277,73 +170,21 @@ class AuthService {
         },
       );
 
-      print('Get profile response status: ${response.statusCode}');
-      print(
-          'Get profile response body preview: ${response.body.substring(0, math.min(response.body.length, 200))}...');
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        print('Successfully retrieved profile data');
-
-        // Check if the user is a patient
-        final isPatient = data['data']['is_patient'] ?? false;
-        print('User is patient: $isPatient');
-
-        // Check if patient data exists
-        final hasPatientData = data['data']['patient_data'] != null;
-        print('Has patient data: $hasPatientData');
-
-        if (hasPatientData) {
-          print(
-              'Patient data preview: ${data['data']['patient_data'].toString().substring(0, math.min(data['data']['patient_data'].toString().length, 200))}...');
-        }
-
-        final updatedUser =
-            UserModel.fromJson(data['data']).copyWith(token: user.token);
-
-        print('Updated user model - Is patient: ${updatedUser.isPatient}');
-        print(
-            'Updated user model - Has patient data: ${updatedUser.patientData != null}');
-
-        if (updatedUser.patientData != null) {
-          print('Patient data fields from profile:');
-          print('- ID: ${updatedUser.patientData!.id}');
-          print('- RM: ${updatedUser.patientData!.noRm}');
-          print('- Name: ${updatedUser.patientData!.nama}');
-          print('- Address: ${updatedUser.patientData!.alamat}');
-          print('- Rhesus: ${updatedUser.patientData!.rhesus}');
-          print(
-              '- Status Perkawinan: ${updatedUser.patientData!.statusPerkawinan}');
-          print('- Agama: ${updatedUser.patientData!.agama}');
-          print('- Pendidikan: ${updatedUser.patientData!.pendidikan}');
-          print('- Riwayat Alergi: ${updatedUser.patientData!.riwayatAlergi}');
-          print(
-              '- Riwayat Penyakit: ${updatedUser.patientData!.riwayatPenyakit}');
-        }
-
-        // Save updated user data to SharedPreferences
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200 && data['success'] == true) {
+        final updatedUser = UserModel.fromJson(data['data']).copyWith(token: user.token);
         await _saveUserData(updatedUser);
-        print('Updated profile data saved to SharedPreferences');
-
         return updatedUser;
       } else {
-        final data = jsonDecode(response.body);
-        print('Failed to get profile: ${data['message']}');
         throw Exception(data['message'] ?? 'Gagal mendapatkan profil');
       }
     } on SocketException {
-      print('Socket exception when getting profile - connection issue');
-      throw Exception(
-          'Tidak dapat terhubung ke server. Pastikan server sedang berjalan dan alamat IP sudah benar.');
+      throw Exception('Tidak dapat terhubung ke server. Periksa koneksi Anda.');
     } on HttpException {
-      print('HTTP exception when getting profile');
-      throw Exception('Terjadi kesalahan HTTP saat menghubungi server.');
+      throw Exception('Terjadi kesalahan HTTP saat mengambil profil.');
     } on FormatException {
-      print('Format exception when getting profile - invalid response format');
-      throw Exception('Format respons dari server tidak valid.');
+      throw Exception('Format respons server tidak valid.');
     } catch (e) {
-      print('Unknown exception when getting profile: ${e.toString()}');
       throw Exception('Terjadi kesalahan: ${e.toString()}');
     }
   }
@@ -379,10 +220,10 @@ class AuthService {
     return user != null;
   }
 
-  // Check if user is a patient
-  Future<bool> isPatient() async {
+  // Check if user is an app user
+  Future<bool> isAppUser() async {
     final user = await getUserData();
-    return user != null && user.isPatient;
+    return user != null && user.isAppUser;
   }
 
   Future<String?> getToken() async {

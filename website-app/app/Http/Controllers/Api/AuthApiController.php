@@ -68,7 +68,7 @@ class AuthApiController extends Controller
             // Prepare user data for response
             $userData = $user->toArray();
             $userData['token'] = $token;
-            $userData['is_patient'] = false;
+            $userData['is_app_user'] = false;
 
             return response()->json([
                 'success' => true,
@@ -126,19 +126,19 @@ class AuthApiController extends Controller
             $token = $user->createToken('app-user-auth-token')->plainTextToken;
 
             // Check if user has a patient record
-            $isPatient = $user->isPatient();
+            $isAppUser = $user->isAppUser();
 
             // Optional: Get patient data if exists
             $patientData = null;
-            if ($isPatient) {
-                $patientData = $user->pasien;
+            if ($isAppUser) {
+                $appuserData = $user->appuser;
             }
 
             // Prepare user data for response
             $userData = $user->toArray();
             $userData['token'] = $token;
-            $userData['is_patient'] = $isPatient;
-            $userData['patient_data'] = $patientData;
+            $userData['is_app_user'] = $isAppUser;
+            $userData['app_user_data'] = $appuserData;
 
             // Update last login details
             $user->update([
@@ -210,19 +210,19 @@ class AuthApiController extends Controller
             $token = $user->createToken('app-user-auth-token')->plainTextToken;
 
             // Check if user has a patient record
-            $isPatient = $user->isPatient();
+            $isAppUser = $user->isAppUser();
 
             // Optional: Get patient data if exists
             $patientData = null;
-            if ($isPatient) {
-                $patientData = $user->pasien;
+            if ($isAppUser) {
+                $appuserData = $user->appuser;
             }
 
             // Prepare user data for response
             $userData = $user->toArray();
             $userData['token'] = $token;
-            $userData['is_patient'] = $isPatient;
-            $userData['patient_data'] = $patientData;
+            $userData['is_app_user'] = $isAppUser;
+            $userData['app_user_data'] = $appuserData;
 
             // Update last login details
             $user->update([
@@ -252,14 +252,14 @@ class AuthApiController extends Controller
     /**
      * Register as patient (convert app user to patient)
      */
-    public function registerAsPatient(Request $request)
+    public function registerAsAppUser(Request $request)
     {
         // Log the start of patient registration
-        Log::info('Patient registration started', ['user_id' => $request->user() ? $request->user()->id : 'unauthorized']);
+        Log::info('App User registration started', ['user_id' => $request->user() ? $request->user()->id : 'unauthorized']);
         
         // Validate the token is present
         if (!$request->user()) {
-            Log::warning('Patient registration failed: Unauthorized user');
+            Log::warning('App User registration failed: Unauthorized user');
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
@@ -268,45 +268,28 @@ class AuthApiController extends Controller
 
         // Get the current app user
         $user = $request->user();
-        Log::info('User found for patient registration', ['user_id' => $user->id, 'email' => $user->email]);
+        Log::info('User found for app user registration', ['user_id' => $user->id, 'email' => $user->email]);
 
-        // Check if user already has a patient record
+        // Check if user already has a app user record
         if ($user->isPatient()) {
-            Log::warning('User already registered as patient', ['user_id' => $user->id]);
+            Log::warning('User already registered as app user', ['user_id' => $user->id]);
             return response()->json([
                 'success' => false,
-                'message' => 'Pengguna sudah terdaftar sebagai pasien'
+                'message' => 'Pengguna sudah terdaftar'
             ], 400);
         }
 
-        // Validate additional patient data
+        // Validate additional app user data
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
-            'tempat_lahir' => 'required|string|max:255',
             'tanggal_lahir' => 'required|date',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'alamat' => 'required|string',
             'no_telepon' => 'required|string|max:15',
-            'pekerjaan' => 'required|string|max:255',
-            'golongan_darah' => 'required|string|max:10',
-            'rhesus' => 'required|string|max:10',
-            'status_perkawinan' => 'required|string|max:50',
-            'agama' => 'required|string|max:50',
-            'pendidikan' => 'required|string|max:50',
-            'tinggi_badan' => 'required|integer|min:50|max:250',
-            'berat_badan' => 'required|integer|min:1|max:300',
-            'imt' => 'nullable|string|max:10',
-            'tekanan_darah' => 'required|string|max:20',
-            'no_bpjs' => 'nullable|string|max:20',
-            'status_bpjs' => 'nullable|string|max:50',
-            'kelas_rawat' => 'nullable|string|max:50',
-            'masa_berlaku_bpjs' => 'nullable|date',
-            'riwayat_alergi' => 'nullable|string',
-            'riwayat_penyakit' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
-            Log::warning('Patient registration validation failed', [
+            Log::warning('App User registration validation failed', [
                 'user_id' => $user->id,
                 'errors' => $validator->errors()->toArray()
             ]);
@@ -322,87 +305,47 @@ class AuthApiController extends Controller
             DB::beginTransaction();
             
             // Log patient data before creating
-            Log::info('Creating patient record with data', [
+            Log::info('Creating app user record with data', [
                 'user_id' => $user->id,
                 'data' => $request->except(['password', 'password_confirmation'])
             ]);
-            
-            // Generate a unique RM number
-            $noRm = 'RM-' . str_pad(Pasien::count() + 1, 6, '0', STR_PAD_LEFT);
-            Log::info('Generated RM number', ['no_rm' => $noRm]);
-            
+
             // Create a patient record linked to the user
-            $pasien = Pasien::create([
+            $appuser = User::create([
                 'user_id' => $user->id,
-                'no_rm' => $noRm,
                 'nama' => $request->nama,
-                'tempat_lahir' => $request->tempat_lahir,
                 'tanggal_lahir' => $request->tanggal_lahir,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'alamat' => $request->alamat,
                 'no_telepon' => $request->no_telepon,
-                'pekerjaan' => $request->pekerjaan,
-                'golongan_darah' => $request->golongan_darah,
-                'rhesus' => $request->rhesus,
-                'status_perkawinan' => $request->status_perkawinan,
-                'agama' => $request->agama,
-                'pendidikan' => $request->pendidikan,
-                'tinggi_badan' => $request->tinggi_badan,
-                'berat_badan' => $request->berat_badan,
-                'imt' => $request->imt,
-                'tekanan_darah' => $request->tekanan_darah,
-                'no_bpjs' => $request->no_bpjs,
-                'status_bpjs' => $request->status_bpjs,
-                'kelas_rawat' => $request->kelas_rawat,
-                'masa_berlaku_bpjs' => $request->masa_berlaku_bpjs,
-                'riwayat_alergi' => $request->riwayat_alergi,
-                'riwayat_penyakit' => $request->riwayat_penyakit,
             ]);
             
-            Log::info('Patient record created successfully', [
-                'patient_id' => $pasien->id,
-                'no_rm' => $pasien->no_rm
+            Log::info('App User record created successfully', [
+                'app_user_id' => $appuser->id,
+                'nama' => $appuser->nama,
             ]);
             
             DB::commit();
             
-            // Log all fields in the created patient record
+            // Log all fields in the created app user record
             Log::info('Patient record details', [
-                'id' => $pasien->id,
-                'no_rm' => $pasien->no_rm,
-                'nama' => $pasien->nama,
-                'jenis_kelamin' => $pasien->jenis_kelamin,
-                'tempat_lahir' => $pasien->tempat_lahir,
-                'tanggal_lahir' => $pasien->tanggal_lahir,
-                'alamat' => $pasien->alamat,
-                'no_telepon' => $pasien->no_telepon,
-                'pekerjaan' => $pasien->pekerjaan,
-                'golongan_darah' => $pasien->golongan_darah,
-                'rhesus' => $pasien->rhesus,
-                'status_perkawinan' => $pasien->status_perkawinan,
-                'agama' => $pasien->agama,
-                'pendidikan' => $pasien->pendidikan,
-                'tinggi_badan' => $pasien->tinggi_badan,
-                'berat_badan' => $pasien->berat_badan,
-                'imt' => $pasien->imt,
-                'tekanan_darah' => $pasien->tekanan_darah,
-                'no_bpjs' => $pasien->no_bpjs,
-                'status_bpjs' => $pasien->status_bpjs,
-                'kelas_rawat' => $pasien->kelas_rawat,
-                'masa_berlaku_bpjs' => $pasien->masa_berlaku_bpjs,
-                'riwayat_alergi' => $pasien->riwayat_alergi,
-                'riwayat_penyakit' => $pasien->riwayat_penyakit,
+                'id' => $appuser->id,
+                'nama' => $appuser->nama,
+                'jenis_kelamin' => $appuser->jenis_kelamin,
+                'tanggal_lahir' => $appuser->tanggal_lahir,
+                'alamat' => $appuser->alamat,
+                'no_telepon' => $appuser->no_telepon,
             ]);
             
             // Prepare response data
             $responseData = [
-                'is_patient' => true,
-                'patient' => $pasien
+                'is_app_user' => true,
+                'appuserr' => $appuser
             ];
             
             Log::info('Patient registration completed successfully', [
                 'user_id' => $user->id,
-                'patient_id' => $pasien->id
+                'app_user_id' => $appuser->id
             ]);
             
             return response()->json([
@@ -413,7 +356,7 @@ class AuthApiController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            Log::error('Patient registration failed with exception', [
+            Log::error('app user registration failed with exception', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -421,7 +364,7 @@ class AuthApiController extends Controller
             
             return response()->json([
                 'success' => false,
-                'message' => 'Pendaftaran pasien gagal',
+                'message' => 'Pendaftaran pengguna aplikasi gagal',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -438,23 +381,23 @@ class AuthApiController extends Controller
             Log::info('Profile data requested', ['user_id' => $user->id]);
             
             // Check if user has a patient record
-            $isPatient = $user->isPatient();
-            Log::info('User is patient', ['is_patient' => $isPatient]);
+            $isAppUser = $user->isAppUser();
+            Log::info('User is app user', ['is_app_user' => $isAppUser]);
 
             // Optional: Get patient data if exists
             $patientData = null;
-            if ($isPatient) {
-                $patientData = $user->pasien;
+            if ($isAppUser) {
+                $appuserData = $user->appuser;
                 Log::info('Retrieved patient data', [
-                    'patient_id' => $patientData->id,
-                    'no_rm' => $patientData->no_rm
+                    'appuser_id' => $appuserData->id,
+                    'nama' => $appuserData->nama,
                 ]);
             }
             
             // Prepare user data for response
             $userData = $user->toArray();
-            $userData['is_patient'] = $isPatient;
-            $userData['patient_data'] = $patientData;
+            $userData['is_app_user'] = $isAppUser;
+            $userData['app_user_data'] = $patientData;
             
             Log::info('Profile data loaded successfully', ['user_id' => $user->id]);
             

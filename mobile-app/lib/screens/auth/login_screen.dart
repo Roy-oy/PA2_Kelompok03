@@ -17,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _usernameController;
+  late TextEditingController _emailController;
   late TextEditingController _passwordController;
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
-    _usernameController = TextEditingController();
+    _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _isPasswordVisible = false;
     _isLoading = false;
@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -46,21 +46,23 @@ class _LoginScreenState extends State<LoginScreen>
 
     setState(() {
       _isLoading = true;
+      _errorMessage = '';
     });
 
     try {
-      String nik = _usernameController.text.trim();
+      String email = _emailController.text.trim();
       String password = _passwordController.text;
 
-      if (nik.isEmpty || password.isEmpty) {
-        _showErrorSnackBar('NIK dan password tidak boleh kosong');
+      if (email.isEmpty || password.isEmpty) {
+        _showErrorSnackBar('Email dan password tidak boleh kosong');
         return;
       }
 
-      // Call login API with NIK
-      final userModel = await AuthService().loginWithNik(nik, password);
+      // Call login API with email
+      final userModel = await AuthService().login(email, password);
 
       if (userModel != null) {
+        widget.onLoginSuccess();
         // Navigate to home screen on success
         Navigator.pushNamedAndRemoveUntil(
           context,
@@ -69,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen>
         );
       } else {
         _showErrorSnackBar(
-            'Login gagal. Periksa kembali NIK dan password Anda.');
+            'Login gagal. Periksa kembali email dan password Anda.');
       }
     } catch (e) {
       _showErrorSnackBar(e.toString().replaceAll('Exception: ', ''));
@@ -95,6 +97,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
     setState(() {
       _isLoading = false;
+      _errorMessage = message;
     });
   }
 
@@ -113,11 +116,10 @@ class _LoginScreenState extends State<LoginScreen>
               children: [
                 // Spacer for header
                 Container(
-                  height: screenSize.height *
-                      0.23, // Slightly less than header size
+                  height: screenSize.height * 0.23,
                   color: Colors.transparent,
                 ),
-                
+
                 // Content that will appear below the header
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -136,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen>
                           children: [
                             Text(
                               'Selamat Datang!',
-                              style: TextStyle( 
+                              style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF06489F),
@@ -145,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             SizedBox(height: 6),
                             Text(
-                              'Silakan masuk menggunakan NIK Anda',
+                              'Silakan masuk menggunakan email Anda',
                               style: TextStyle(
                                 fontSize: 15,
                                 color: Colors.grey[700],
@@ -196,19 +198,19 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
 
-                            // NIK field
+                            // Email field
                             _buildInputField(
-                              controller: _usernameController,
-                              labelText: 'NIK',
-                              hintText: 'Masukkan NIK Anda',
-                              prefixIcon: Iconsax.card,
-                              keyboardType: TextInputType.number,
+                              controller: _emailController,
+                              labelText: 'Email',
+                              hintText: 'Masukkan email Anda',
+                              prefixIcon: Iconsax.message,
+                              keyboardType: TextInputType.emailAddress,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'NIK tidak boleh kosong';
+                                  return 'Email tidak boleh kosong';
                                 }
-                                if (value.length != 16) {
-                                  return 'NIK harus 16 digit';
+                                if (!value.endsWith('@gmail.com')) {
+                                  return 'Email harus menggunakan @gmail.com';
                                 }
                                 return null;
                               },
@@ -326,7 +328,6 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    // Navigate to register screen
                                     Navigator.pushNamed(context, '/register');
                                   },
                                   style: TextButton.styleFrom(
@@ -487,7 +488,7 @@ class _LoginScreenState extends State<LoginScreen>
                 color: Colors.red[700],
                 fontSize: 12,
                 fontFamily: 'KohSantepheap',
-                height: 0.8, // Reduce the height of error text
+                height: 0.8,
               ),
               hintText: hintText,
               hintStyle: TextStyle(
@@ -520,7 +521,6 @@ class _LoginScreenState extends State<LoginScreen>
               floatingLabelBehavior: FloatingLabelBehavior.auto,
               filled: true,
               fillColor: Colors.grey.shade50,
-              // Reduce error message container effects
               isDense: true,
               errorMaxLines: 1,
             ),
@@ -534,13 +534,11 @@ class _LoginScreenState extends State<LoginScreen>
 class _TopWavePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // Main background - solid color base with button matching color
     final mainPath = Path();
     mainPath.moveTo(0, 0);
     mainPath.lineTo(size.width, 0);
     mainPath.lineTo(size.width, size.height * 0.8);
 
-    // Create a subtle organic curve at the bottom
     final firstControlPoint = Offset(size.width * 0.75, size.height * 0.95);
     final firstEndPoint = Offset(size.width * 0.5, size.height * 0.85);
     mainPath.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
@@ -553,7 +551,6 @@ class _TopWavePainter extends CustomPainter {
 
     mainPath.close();
 
-    // Draw main shape with the primary color (same as button color)
     final mainPaint = Paint()
       ..color = const Color(0xFF06489F)
       ..style = PaintingStyle.fill;

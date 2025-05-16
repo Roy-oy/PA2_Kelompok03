@@ -62,10 +62,6 @@
                         <div class="w-2/3 text-sm text-gray-900">{{ $user->phone ?? '-' }}</div>
                     </div>
                     <div class="flex">
-                        <div class="w-1/3 text-sm font-medium text-gray-500">NIK</div>
-                        <div class="w-2/3 text-sm text-gray-900">{{ $user->nik ?? '-' }}</div>
-                    </div>
-                    <div class="flex">
                         <div class="w-1/3 text-sm font-medium text-gray-500">Jenis Kelamin</div>
                         <div class="w-2/3 text-sm text-gray-900">{{ $user->gender ?? '-' }}</div>
                     </div>

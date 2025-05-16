@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:mobile_puskesmas/config/api_config.dart';
 import 'package:mobile_puskesmas/models/user_model.dart';
+import 'package:mobile_puskesmas/screens/patient_form_screen.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,7 +16,7 @@ class PasienService {
   PasienService._internal();
 
   // Get all patients
-  Future<List<PatientModel>> getAllPasien() async {
+  Future<List<PatientFormScreen>> getAllPasien() async {
     try {
       // Get token from AuthService
       final authService = AuthService();
@@ -37,87 +38,10 @@ class PasienService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
-        if (jsonResponse['data'] != null) {
-          final List<dynamic> pasienList = jsonResponse['data'];
-          final patients =
-              pasienList.map((item) => PatientModel.fromJson(item)).toList();
-
-          return patients;
-        }
         throw Exception('Data pasien tidak ditemukan');
       }
       throw Exception(
           'Gagal memuat daftar pasien. Status: ${response.statusCode}');
-    } catch (e) {
-      throw Exception('Terjadi kesalahan: ${e.toString()}');
-    }
-  }
-
-  // Get patient detail
-  Future<PatientModel> getPasienDetail(int pasienId) async {
-    try {
-      final authService = AuthService();
-      final user = await authService.getUserData();
-
-      if (user == null || user.token == null) {
-        throw Exception('Anda perlu login terlebih dahulu');
-      }
-
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/pasien/$pasienId'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${user.token}',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-
-        if (jsonResponse['data'] != null) {
-          return PatientModel.fromJson(jsonResponse['data']);
-        }
-        throw Exception('Data pasien tidak ditemukan');
-      }
-      throw Exception(
-          'Gagal memuat detail pasien. Status: ${response.statusCode}');
-    } catch (e) {
-      throw Exception('Terjadi kesalahan: ${e.toString()}');
-    }
-  }
-
-  // Update patient data
-  Future<PatientModel> updatePasien(
-      int pasienId, Map<String, dynamic> updateData) async {
-    try {
-      final authService = AuthService();
-      final user = await authService.getUserData();
-
-      if (user == null || user.token == null) {
-        throw Exception('Anda perlu login terlebih dahulu');
-      }
-
-      final response = await http.put(
-        Uri.parse('${ApiConfig.baseUrl}/pasien/$pasienId'),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${user.token}',
-        },
-        body: jsonEncode(updateData),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-
-        if (jsonResponse['data'] != null) {
-          return PatientModel.fromJson(jsonResponse['data']);
-        }
-        throw Exception('Data pasien tidak ditemukan');
-      }
-      throw Exception(
-          'Gagal memperbarui data pasien. Status: ${response.statusCode}');
     } catch (e) {
       throw Exception('Terjadi kesalahan: ${e.toString()}');
     }
