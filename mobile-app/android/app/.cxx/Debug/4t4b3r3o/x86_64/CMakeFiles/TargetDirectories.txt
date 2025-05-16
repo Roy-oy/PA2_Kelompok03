@@ -1,0 +1,2 @@
+C:/pa2 kel 03/PA2_Kelompok03/mobile-app/android/app/.cxx/Debug/4t4b3r3o/x86_64/CMakeFiles/edit_cache.dir
+C:/pa2 kel 03/PA2_Kelompok03/mobile-app/android/app/.cxx/Debug/4t4b3r3o/x86_64/CMakeFiles/rebuild_cache.dir
