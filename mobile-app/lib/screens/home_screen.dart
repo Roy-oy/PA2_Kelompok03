@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:mobile_puskesmas/screens/faskes_rujukan_screen.dart';
 import 'package:mobile_puskesmas/screens/feedback_1.dart';
 import 'package:mobile_puskesmas/screens/jadwal_dokter_screen.dart';
 import 'package:mobile_puskesmas/screens/medical_detail_screen.dart';
@@ -37,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Cek apakah pengguna sudah login dan merupakan pasien
       final bool isLoggedIn = await AuthService().isLoggedIn();
-      final bool isPatient = await AuthService().isPatient();
+      final bool isPatient = await AuthService().isAppUser();
 
       if (!isLoggedIn || !isPatient) {
         setState(() {
@@ -48,12 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       // Jika sudah login dan merupakan pasien, ambil data rekam medis
-      final records = await PasienService().getMedicalRecords();
 
-      setState(() {
-        _medicalRecords = records;
-        _isLoading = false;
-      });
+    
     } catch (e) {
       print('Error loading medical records: $e');
       setState(() {
@@ -396,7 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
               GestureDetector(
                 onTap: () async {
                   final isLoggedIn = await AuthService().isLoggedIn();
-                  final isPatient = await AuthService().isPatient();
+                  final isPatient = await AuthService().isAppUser();
 
                   if (!isLoggedIn) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -1020,17 +1017,21 @@ Pengecualian Rujukan Berjenjang:
     required String content,
   }) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF06489F), Color(0xFF0A74DA)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
-            blurRadius: 4,
-            spreadRadius: 0,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -1042,15 +1043,13 @@ Pengecualian Rujukan Berjenjang:
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F9FF),
+              color: Colors.white.withOpacity(0.8),
               borderRadius: BorderRadius.circular(8),
-              border:
-                  Border.all(color: const Color(0xFF06489F).withOpacity(0.1)),
             ),
             child: Text(
               title,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF06489F),
               ),
@@ -1062,9 +1061,9 @@ Pengecualian Rujukan Berjenjang:
             textAlign: TextAlign.justify,
             text: TextSpan(
               style: const TextStyle(
-                fontSize: 13,
-                height: 1.5,
-                color: Colors.black87,
+                fontSize: 14,
+                height: 1.6,
+                color: Colors.white,
                 fontFamily: 'KohSantepheap',
               ),
               text: content,
@@ -1100,36 +1099,9 @@ Pengecualian Rujukan Berjenjang:
   }
 
   void _handleFaskesRujukan() {
-    // Tampilkan toast "Coming Soon" yang sederhana
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-        backgroundColor: const Color(0xFF06489F),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        duration: const Duration(seconds: 2),
-        content: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.info_outline,
-              color: Colors.white,
-              size: 18,
-            ),
-            SizedBox(width: 10),
-            Flexible(
-              child: Text(
-                'Coming Soon',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const FaskesRujukanScreen()),
     );
   }
 }

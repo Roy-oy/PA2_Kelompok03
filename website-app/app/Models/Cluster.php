@@ -23,15 +23,13 @@ class Cluster extends Model
      *
      * @var array
      */
-
     protected $casts = [
-        'nama' => 'string', // Cast nama as string
+        'nama' => 'string',
     ];
 
     /**
      * Relasi ke tabel lain
      */
-
     // Relasi dengan tabel jadwal dokter (One-to-Many)
     public function schedules()
     {

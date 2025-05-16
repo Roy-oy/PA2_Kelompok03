@@ -12,18 +12,21 @@ class _Feedback_1State extends State<Feedback_1> {
   int _rating = 3;
   final TextEditingController _feedbackController = TextEditingController();
 
-  final List<Map<String, String>> _doctors = [
+  final List<Map<String, dynamic>> _doctors = [
     {
       'nama': 'dr. Susiana Siahaan, Sp.A, M.Kes',
-      'deskripsi': 'Cek: efisien & supportive',
+      'diagnosis': 'Chronic atticoantral suppurative otitis media',
+      'rating': 4,
     },
     {
       'nama': 'dr. Febiola Gultang, Sp.A, M.Kes',
-      'deskripsi': 'Cek: informatif & cepat',
+      'diagnosis': 'Chronic atticoantral suppurative otitis media',
+      'rating': 0, // 0 indicates no feedback yet
     },
     {
       'nama': 'dr. Patton, Sp.A, M.Kes',
-      'deskripsi': 'Cek: ramah & jelas',
+      'diagnosis': 'Chronic atticoantral suppurative otitis media',
+      'rating': 5,
     },
   ];
 
@@ -69,13 +72,77 @@ class _Feedback_1State extends State<Feedback_1> {
         final doctor = _doctors[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            title: Text(doctor['nama']!),
-            subtitle: Text(doctor['deskripsi']!),
-            trailing: ElevatedButton(
-              onPressed: () => _goToFeedbackForm(index),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text('Isi Feedback'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Senin, 30 Oktober 2024',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.medical_services, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Pelayanan Dokter\n${doctor['nama']}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.assignment, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Diagnosis Pelayanan\n${doctor['diagnosis']}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: List.generate(
+                        5,
+                        (i) => Icon(
+                          i < doctor['rating']
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: Colors.amber,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _goToFeedbackForm(index),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                      child: const Text('Isi Feedback'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         );

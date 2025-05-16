@@ -148,21 +148,12 @@ class _MedicalHistoryScreenState extends State<MedicalHistoryScreen> {
           );
         }
       },
-      child: Container(
+      child: Card(
         margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 0,
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-          border: Border.all(color: Colors.grey.withOpacity(0.1)),
         ),
+        elevation: 3,
         child: Column(
           children: [
             // Header

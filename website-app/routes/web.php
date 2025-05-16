@@ -11,6 +11,7 @@ use App\Http\Controllers\DoctorScheduleController;
 use App\Http\Controllers\KategoriBeritaController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\FaqController;
 
 // Authentication Routes
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
@@ -39,6 +40,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('kategori_berita', KategoriBeritaController::class);
 
     Route::resource('antrian', AntrianController::class);
+
+    Route::resource('faq', FaqController::class);
 
     // App Users Management
     Route::get('/app-users', [App\Http\Controllers\AppUserController::class, 'index'])->name('app-users.index');

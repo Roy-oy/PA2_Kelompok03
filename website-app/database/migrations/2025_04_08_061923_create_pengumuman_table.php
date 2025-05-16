@@ -17,7 +17,8 @@ return new class extends Migration
             $table->text('isi_pengumuman');
             $table->date('tanggal_upload');
             $table->string('file_surat')->nullable();
-            $table->timestamps(); // created_at dan updated_at
+            $table->enum('status', ['pending', 'publish'])->default('publish');
+            $table->timestamps(); 
         });
     }
 

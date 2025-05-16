@@ -99,7 +99,7 @@ class _PengumumanState extends State<Pengumuman> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0D47A1), // biru tua
+                    color: Color(0xFF0D47A1),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -146,67 +146,33 @@ class _PengumumanState extends State<Pengumuman> {
   }
 
   Widget _buildDetailView() {
-    final item = _announcements[_selectedIndex];
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: double.infinity,
-            height: 180, // Reduced height since we're removing the image
-            decoration: const BoxDecoration(
-              color: Color(0xFF4287f5),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
-              ),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'MEDICAL\nCENTER',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.2,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'PUSMA',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.email,
-                        size: 20,
-                        color: Colors.white70,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'puskesmasib@gmail.com',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+  final item = _announcements[_selectedIndex];
+  return SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          height: 200,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(30),
+              bottomRight: Radius.circular(30),
             ),
           ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(30),
+              bottomRight: Radius.circular(30),
+            ),
+            child: Image.asset(
+              'assets/images/doctor.jpg',
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 200,
+            ),
+          ),
+        ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -217,12 +183,13 @@ class _PengumumanState extends State<Pengumuman> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    color: Color(0xFF0D47A1),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 16, color: Colors.blue[800]),
+                    const Icon(Icons.calendar_today, size: 16, color: Colors.blue),
                     const SizedBox(width: 6),
                     Text(
                       item.tanggal,
@@ -236,6 +203,7 @@ class _PengumumanState extends State<Pengumuman> {
                   style: const TextStyle(
                     fontSize: 16,
                     height: 1.5,
+                    color: Colors.black87,
                   ),
                 ),
               ],
@@ -246,4 +214,3 @@ class _PengumumanState extends State<Pengumuman> {
     );
   }
 }
-

@@ -139,24 +139,6 @@
                                 @enderror
                             </div>
 
-                            <!-- NIK -->
-                            <div>
-                                <label for="nik" class="block text-sm font-medium text-gray-700 mb-1">
-                                    NIK
-                                </label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-id-card text-gray-400"></i>
-                                    </div>
-                                    <input type="text" id="nik" name="nik" value="{{ old('nik', $user->nik) }}" maxlength="16"
-                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 @error('nik') border-red-500 @enderror"
-                                        placeholder="Masukkan NIK">
-                                </div>
-                                @error('nik')
-                                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                @enderror
-                            </div>
-
                             <!-- Gender -->
                             <div>
                                 <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Pengumuman extends Model
 {
@@ -18,10 +19,24 @@ class Pengumuman extends Model
         'isi_pengumuman',
         'tanggal_upload',
         'file_surat',
+        'status',
     ];
 
     // Format data otomatis
     protected $casts = [
-        'tanggal' => 'date',
+        'tanggal_upload' => 'date',
+        'status' => 'string',
     ];
+
+    /**
+     * Accessor to dynamically determine status based on tanggal_upload
+     */
+    public function getDynamicStatusAttribute()
+    {
+        $today = Carbon::today();
+        if ($this->tanggal_upload->isBefore($today)) {
+            return 'publish';
+        }
+        return $this->tanggal_upload->isSameDay($today) ? 'publish' : 'pending';
+    }
 }

@@ -57,20 +57,26 @@
                         @enderror
                     </div>
 
-                    <!-- Tanggal -->
+                    <!-- Hari -->
                     <div>
-                        <label for="schedule_date" class="block text-sm font-medium text-gray-700 mb-1">
-                            Tanggal <span class="text-red-500">*</span>
+                        <label for="schedule_day" class="block text-sm font-medium text-gray-700 mb-1">
+                            Hari <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-calendar text-gray-400"></i>
                             </div>
-                            <input type="date" name="schedule_date" id="schedule_date" 
-                                value="{{ $schedule->schedule_date->format('Y-m-d') }}" 
+                            <select name="schedule_day" id="schedule_day" 
                                 class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5" required>
+                                <option value="">Pilih Hari</option>
+                                @foreach(['Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu'] as $value => $label)
+                                    <option value="{{ $value }}" {{ $schedule->schedule_day == $value ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        @error('schedule_date')
+                        @error('schedule_day')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

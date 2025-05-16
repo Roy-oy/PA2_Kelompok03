@@ -4,9 +4,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PasienApiController;
 use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\FaqApiController;
 use App\Http\Controllers\Api\JadwalDokterApiController;
 use App\Http\Controllers\Api\MedicalRecordApiController;
 use App\Http\Controllers\Api\PengumumanApiController;
+use App\Models\Faq;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,8 +54,16 @@ Route::get('/jadwal-dokter/{schedule}', [JadwalDokterApiController::class, 'show
 Route::get('/pengumuman', [PengumumanApiController::class, 'index']);
 Route::get('/pengumuman/{pengumuman}', [PengumumanApiController::class, 'show']);
 
+// FAQ routes
+Route::get('/faq', [FaqApiController::class, 'index']);
+Route::get('/faq/{faq}', [FaqApiController::class, 'show']);
+
+
 // Rute rekam medis - memerlukan autentikasi
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pasien/medical-records', [MedicalRecordApiController::class, 'index']);
     Route::get('/pasien/medical-records/{id}', [MedicalRecordApiController::class, 'show']);
 });
+//faq
+
+

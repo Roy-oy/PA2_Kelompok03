@@ -65,7 +65,7 @@
                 <button @click="activeDropdown = activeDropdown === 'services' ? null : 'services'" class="w-full flex items-center justify-between px-4 py-2.5 text-gray-600 hover:bg-green-50 hover:text-gray-800 rounded-lg transition-colors group">
                     <div class="flex items-center">
                         <i class="fas fa-hand-holding-medical w-5 h-5 mr-3 text-gray-500 group-hover:text-green-600 transition-colors"></i>
-                        <span>Layanan</span>
+                        <span>Media & Informasi</span>
                     </div>
                     <i class="fas" :class="activeDropdown === 'services' ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
                 </button>
@@ -85,6 +85,10 @@
                     <a href="/pengumuman" class="{{ request()->is('pengumuman*') ? 'flex items-center px-4 py-2.5 text-gray-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors group' : 'flex items-center px-4 py-2.5 text-gray-600 hover:bg-green-50 hover:text-gray-800 rounded-lg transition-colors group' }}">
                         <i class="fas fa-layer-group w-5 h-5 mr-3 {{ request()->is('pengumuman*') ? 'text-green-600' : 'text-gray-500 group-hover:text-green-600' }} transition-colors"></i>
                         <span class="{{ request()->is('pengumuman*') ? 'font-medium' : '' }}">Pengumuman</span>
+                    </a>
+                    <a href="/faq" class="{{ request()->is('faq*') ? 'flex items-center px-4 py-2.5 text-gray-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors group' : 'flex items-center px-4 py-2.5 text-gray-600 hover:bg-green-50 hover:text-gray-800 rounded-lg transition-colors group' }}">
+                        <i class="fas fa-question-circle w-5 h-5 mr-3 {{ request()->is('faq*') ? 'text-green-600' : 'text-gray-500 group-hover:text-green-600' }} transition-colors"></i>
+                        <span class="{{ request()->is('faq*') ? 'font-medium' : '' }}">FAQ</span>
                     </a>
                 </div>
             </li>

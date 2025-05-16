@@ -20,7 +20,6 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _passwordController = TextEditingController();
   final _passwordConfirmController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _nikController = TextEditingController();
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
@@ -39,7 +38,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     _passwordController.dispose();
     _passwordConfirmController.dispose();
     _phoneController.dispose();
-    _nikController.dispose();
     super.dispose();
   }
 
@@ -60,7 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         _passwordController.text,
         _passwordConfirmController.text,
         _phoneController.text,
-        _nikController.text,
+        '', 
       );
 
       // Show success snackbar
@@ -218,25 +216,6 @@ class _RegisterScreenState extends State<RegisterScreen>
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Nama lengkap tidak boleh kosong';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-
-                            // NIK field
-                            _buildInputField(
-                              controller: _nikController,
-                              labelText: 'NIK',
-                              hintText: 'Masukkan NIK',
-                              prefixIcon: Iconsax.card,
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'NIK tidak boleh kosong';
-                                }
-                                if (value.length != 16) {
-                                  return 'NIK harus 16 digit';
                                 }
                                 return null;
                               },

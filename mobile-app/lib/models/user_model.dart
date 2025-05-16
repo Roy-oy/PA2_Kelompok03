@@ -7,8 +7,8 @@ class UserModel {
   final DateTime? dateOfBirth;
   final String? gender;
   final String? token;
-  final bool isPatient;
-  final PatientModel? patientData;
+  final bool isAppUser;
+  final AppUserModel? appUserData;
 
   UserModel({
     this.id,
@@ -19,8 +19,8 @@ class UserModel {
     this.dateOfBirth,
     this.gender,
     this.token,
-    this.isPatient = false,
-    this.patientData,
+    this.isAppUser = false,
+    this.appUserData,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -35,9 +35,9 @@ class UserModel {
           : null,
       gender: json['gender'],
       token: json['token'],
-      isPatient: json['is_patient'] ?? false,
-      patientData: json['patient_data'] != null
-          ? PatientModel.fromJson(json['patient_data'])
+      isAppUser: json['is_app_user'] ?? false,
+      appUserData: json['app_user_data'] != null
+          ? AppUserModel.fromJson(json['app_user_data'])
           : null,
     );
   }
@@ -51,24 +51,14 @@ class UserModel {
       'nik': nik,
       'date_of_birth': dateOfBirth?.toIso8601String(),
       'gender': gender,
-      'is_patient': isPatient,
+      'is_app_user': isAppUser,
+      'app_user_data': appUserData?.toJson(),
     };
-  }
-
-  String getAge() {
-    if (dateOfBirth == null) return '-';
-    final now = DateTime.now();
-    int age = now.year - dateOfBirth!.year;
-    if (now.month < dateOfBirth!.month ||
-        (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
-      age--;
-    }
-    return '$age tahun';
   }
 
   String getFormattedDateOfBirth() {
     if (dateOfBirth == null) return '-';
-    return '${dateOfBirth!.day.toString().padLeft(2, '0')}-${dateOfBirth!.month.toString().padLeft(2, '0')}-${dateOfBirth!.year}';
+    return '${dateOfBirth!.day.toString().padLeft(2, '0')}/${dateOfBirth!.month.toString().padLeft(2, '0')}/${dateOfBirth!.year}';
   }
 
   UserModel copyWith({
@@ -80,8 +70,8 @@ class UserModel {
     DateTime? dateOfBirth,
     String? gender,
     String? token,
-    bool? isPatient,
-    PatientModel? patientData,
+    bool? isAppUser,
+    AppUserModel? appUserData,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -92,120 +82,48 @@ class UserModel {
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       gender: gender ?? this.gender,
       token: token ?? this.token,
-      isPatient: isPatient ?? this.isPatient,
-      patientData: patientData ?? this.patientData,
+      isAppUser: isAppUser ?? this.isAppUser,
+      appUserData: appUserData ?? this.appUserData,
     );
   }
 }
 
-class PatientModel {
+class AppUserModel {
   final int? id;
-  final String? noRm;
   final String? nama;
   final String? jenisKelamin;
   final String? tanggalLahir;
-  final String? tempatLahir;
   final String? alamat;
   final String? noTelepon;
-  final String? pekerjaan;
-  final String? noBpjs;
-  final String? golonganDarah;
-  final String? rhesus;
-  final String? statusPerkawinan;
-  final String? agama;
-  final String? pendidikan;
-  final int? tinggiBadan;
-  final int? beratBadan;
-  final String? imt;
-  final String? tekananDarah;
-  final String? statusBpjs;
-  final String? kelasRawat;
-  final String? masaBerlakuBpjs;
-  final String? riwayatAlergi;
-  final String? riwayatPenyakit;
 
-  PatientModel({
+  AppUserModel({
     this.id,
-    this.noRm,
     this.nama,
     this.jenisKelamin,
     this.tanggalLahir,
-    this.tempatLahir,
     this.alamat,
     this.noTelepon,
-    this.pekerjaan,
-    this.noBpjs,
-    this.golonganDarah,
-    this.rhesus,
-    this.statusPerkawinan,
-    this.agama,
-    this.pendidikan,
-    this.tinggiBadan,
-    this.beratBadan,
-    this.imt,
-    this.tekananDarah,
-    this.statusBpjs,
-    this.kelasRawat,
-    this.masaBerlakuBpjs,
-    this.riwayatAlergi,
-    this.riwayatPenyakit,
   });
 
-  factory PatientModel.fromJson(Map<String, dynamic> json) {
-    return PatientModel(
+  factory AppUserModel.fromJson(Map<String, dynamic> json) {
+    return AppUserModel(
       id: json['id'],
-      noRm: json['no_rm'],
       nama: json['nama'],
       jenisKelamin: json['jenis_kelamin'],
       tanggalLahir: json['tanggal_lahir'],
-      tempatLahir: json['tempat_lahir'],
       alamat: json['alamat'],
       noTelepon: json['no_telepon'],
-      pekerjaan: json['pekerjaan'],
-      noBpjs: json['no_bpjs'],
-      golonganDarah: json['golongan_darah'],
-      rhesus: json['rhesus'],
-      statusPerkawinan: json['status_perkawinan'],
-      agama: json['agama'],
-      pendidikan: json['pendidikan'],
-      tinggiBadan: json['tinggi_badan'],
-      beratBadan: json['berat_badan'],
-      imt: json['imt'],
-      tekananDarah: json['tekanan_darah'],
-      statusBpjs: json['status_bpjs'],
-      kelasRawat: json['kelas_rawat'],
-      masaBerlakuBpjs: json['masa_berlaku_bpjs'],
-      riwayatAlergi: json['riwayat_alergi'],
-      riwayatPenyakit: json['riwayat_penyakit'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'no_rm': noRm,
       'nama': nama,
       'jenis_kelamin': jenisKelamin,
       'tanggal_lahir': tanggalLahir,
-      'tempat_lahir': tempatLahir,
       'alamat': alamat,
       'no_telepon': noTelepon,
-      'pekerjaan': pekerjaan,
-      'no_bpjs': noBpjs,
-      'golongan_darah': golonganDarah,
-      'rhesus': rhesus,
-      'status_perkawinan': statusPerkawinan,
-      'agama': agama,
-      'pendidikan': pendidikan,
-      'tinggi_badan': tinggiBadan,
-      'berat_badan': beratBadan,
-      'imt': imt,
-      'tekanan_darah': tekananDarah,
-      'status_bpjs': statusBpjs,
-      'kelas_rawat': kelasRawat,
-      'masa_berlaku_bpjs': masaBerlakuBpjs,
-      'riwayat_alergi': riwayatAlergi,
-      'riwayat_penyakit': riwayatPenyakit,
     };
   }
 
