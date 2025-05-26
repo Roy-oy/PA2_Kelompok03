@@ -4,7 +4,6 @@ import 'package:mobile_puskesmas/models/user_model.dart';
 import 'package:mobile_puskesmas/screens/auth/login_screen.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
 
-// Constants for consistent styling
 const Color primaryColor = Color(0xFF06489F);
 const Color greyColor = Colors.grey;
 const String fontFamily = 'KohSantepheap';
@@ -27,7 +26,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _loadUserData(forceRefresh: true);
   }
 
-  /// Loads user data from server or local storage
   Future<void> _loadUserData({bool forceRefresh = false}) async {
     if (!mounted) return;
 
@@ -52,12 +50,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isLoading = false;
           _isRefreshing = false;
         });
-        _showErrorSnackBar('Failed to load user data');
+        _showErrorSnackBar('Gagal memuat data pengguna');
       }
     }
   }
 
-  /// Fetches user data with fallback to local storage
   Future<UserModel?> _fetchUserData(bool forceRefresh) async {
     UserModel? user;
     if (forceRefresh) {
@@ -75,7 +72,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return user;
   }
 
-  /// Shows confirmation dialog for logout
   Future<void> _logout() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -109,23 +105,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() => _isLoading = true);
       await AuthService().logout();
       if (mounted) {
-        setState(() {
-          _user = null;
-          _isLoading = false;
-        });
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/login',
+          (route) => false,
+        );
       }
     }
   }
 
-  /// Callback for successful login
   void _onLoginSuccess() => _loadUserData();
 
-  /// Shows error message in SnackBar
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: const TextStyle(fontFamily: fontFamily)),
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.red[700],
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
     );
   }
@@ -204,7 +204,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-/// Profile header widget
 class _ProfileHeader extends StatelessWidget {
   final UserModel user;
 
@@ -240,9 +239,7 @@ class _ProfileHeader extends StatelessWidget {
               const SizedBox(width: 15),
               Expanded(
                 child: Text(
-                  user.appUserData?.nama?.toUpperCase() ??
-                      user.name?.toUpperCase() ??
-                      'NAMA PENGGUNA',
+                  user.name?.toUpperCase() ?? 'NAMA PENGGUNA',
                   style: const TextStyle(
                     fontFamily: fontFamily,
                     fontSize: 14,
@@ -259,7 +256,6 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
-/// Personal data section widget
 class _PersonalDataSection extends StatelessWidget {
   final UserModel user;
 
@@ -295,22 +291,24 @@ class _PersonalDataSection extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           _DataItem(
+            label: 'Nama',
+            value: user.name ?? '-',
+          ),
+          _DataItem(
             label: 'Tanggal Lahir',
-            value: user.appUserData?.getFormattedTanggalLahir() ??
-                user.getFormattedDateOfBirth() ??
-                '-',
+            value: user.getFormattedTanggalLahir(),
           ),
           _DataItem(
             label: 'Jenis Kelamin',
-            value: user.appUserData?.jenisKelamin ?? user.gender ?? '-',
+            value: user.jenisKelamin ?? '-',
           ),
           _DataItem(
             label: 'Alamat',
-            value: user.appUserData?.alamat ?? '-',
+            value: user.alamat ?? '-',
           ),
           _DataItem(
             label: 'No. Telepon',
-            value: user.appUserData?.noTelepon ?? user.phone ?? '-',
+            value: user.noHp ?? '-',
           ),
           _DataItem(
             label: 'Email',
@@ -322,7 +320,6 @@ class _PersonalDataSection extends StatelessWidget {
   }
 }
 
-/// Buttons section widget
 class _ButtonsSection extends StatelessWidget {
   final VoidCallback onLogout;
 
@@ -347,7 +344,6 @@ class _ButtonsSection extends StatelessWidget {
   }
 }
 
-/// Data item widget for personal information
 class _DataItem extends StatelessWidget {
   final String label;
   final String value;
@@ -356,10 +352,12 @@ class _DataItem extends StatelessWidget {
 
   IconData _getIconForLabel() {
     switch (label.toLowerCase()) {
+      case 'nama':
+        return Iconsax.user;
       case 'tanggal lahir':
         return Iconsax.calendar_1;
       case 'jenis kelamin':
-        return Iconsax.user;
+        return Iconsax.profile_2user;
       case 'alamat':
         return Iconsax.location;
       case 'no. telepon':
@@ -414,7 +412,6 @@ class _DataItem extends StatelessWidget {
   }
 }
 
-/// Action button widget
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -466,7 +463,6 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-/// Logout button widget
 class _LogoutButton extends StatelessWidget {
   final VoidCallback onTap;
 

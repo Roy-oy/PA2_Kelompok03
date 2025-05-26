@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\AppUser;
 use App\Models\Pasien;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class AppUserController extends Controller
 {
@@ -16,11 +16,8 @@ class AppUserController extends Controller
      */
     public function index()
     {
-        $appUsers = User::where('user_type', 'app_user')
-            ->with('appUser', 'pasien')
-            ->latest()
-            ->paginate(10);
-            
+        $appUsers = AppUser::with('pasien')->latest()->paginate(10);
+        
         return view('dashboard.app_users.index', compact('appUsers'));
     }
 
@@ -29,7 +26,7 @@ class AppUserController extends Controller
      */
     public function create()
     {
-        return view('dashboard.app_users.create');
+        // return view('dashboard.app_users.create');
     }
 
     /**
@@ -37,122 +34,48 @@ class AppUserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'phone' => 'nullable|string|max:20',
-            'nik' => 'nullable|string|max:16|unique:users,nik',
-            'gender' => 'nullable|in:Laki-laki,Perempuan',
-            'date_of_birth' => 'nullable|date',
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('app_users')],
+            'password' => ['required', 'string', 'min:8'],
+            'tanggal_lahir' => ['required', 'date'],
+            'alamat' => ['required', 'string', 'max:255'],
+            'no_hp' => ['required', 'string', 'max:13', Rule::unique('app_users')],
+            'jenis_kelamin' => ['required', Rule::in(['laki-laki', 'perempuan'])],
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Email harus valid.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'alamat.required' => 'Alamat wajib diisi.',
+            'no_hp.unique' => 'Nomor HP sudah terdaftar.',
+            'jenis_kelamin.in' => 'Jenis kelamin harus laki-laki atau perempuan.',
         ]);
 
         DB::beginTransaction();
         
         try {
-            // Create user
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'user_type' => 'app_user',
-                'phone' => $request->phone,
-                'nik' => $request->nik,
-                'gender' => $request->gender,
-                'date_of_birth' => $request->date_of_birth,
-            ]);
-            
-            // Create app user
             AppUser::create([
-                'user_id' => $user->id,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'tanggal_lahir' => $validated['tanggal_lahir'],
+                'alamat' => $validated['alamat'],
+                'no_hp' => $validated['no_hp'],
+                'jenis_kelamin' => $validated['jenis_kelamin'],
             ]);
             
             DB::commit();
             
             return redirect()->route('app-users.index')
                 ->with('success', 'Pengguna aplikasi berhasil ditambahkan.');
-                
         } catch (\Exception $e) {
             DB::rollBack();
             
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
-                ->withInput();
-        }
-    }
-
-    /**
-     * Display the specified app user.
-     */
-    public function show($id)
-    {
-        $user = User::where('user_type', 'app_user')
-            ->with('appUser', 'pasien')
-            ->findOrFail($id);
-            
-        return view('dashboard.app_users.show', compact('user'));
-    }
-
-    /**
-     * Show the form for editing the specified app user.
-     */
-    public function edit($id)
-    {
-        $user = User::where('user_type', 'app_user')
-            ->with('appUser', 'pasien')
-            ->findOrFail($id);
-            
-        return view('dashboard.app_users.edit', compact('user'));
-    }
-
-    /**
-     * Update the specified app user in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        $user = User::where('user_type', 'app_user')->findOrFail($id);
-        
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'phone' => 'nullable|string|max:20',
-            'nik' => 'nullable|string|max:16|unique:users,nik,' . $id,
-            'gender' => 'nullable|in:Laki-laki,Perempuan',
-            'date_of_birth' => 'nullable|date',
-            'is_active' => 'required|boolean',
-        ]);
-
-        DB::beginTransaction();
-        
-        try {
-            // Update user
-            $user->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'nik' => $request->nik,
-                'gender' => $request->gender,
-                'date_of_birth' => $request->date_of_birth,
-                'is_active' => $request->is_active,
-            ]);
-            
-            // Update password if provided
-            if ($request->filled('password')) {
-                $user->update([
-                    'password' => Hash::make($request->password),
-                ]);
-            }
-            
-            DB::commit();
-            
-            return redirect()->route('app-users.index')
-                ->with('success', 'Pengguna aplikasi berhasil diperbarui.');
-                
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->with('error', 'Gagal menambahkan pengguna. Silakan coba lagi.')
                 ->withInput();
         }
     }
@@ -162,55 +85,28 @@ class AppUserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::where('user_type', 'app_user')->findOrFail($id);
+        $appUser = AppUser::findOrFail($id);
+        
+        DB::beginTransaction();
         
         try {
-            // Check if user has patient data
-            if ($user->pasien) {
-                return redirect()->back()
-                    ->with('error', 'Pengguna ini memiliki data pasien dan tidak dapat dihapus.');
+            // Nullify app_user_id in related Pasien records
+            if ($appUser->pasien) {
+                $appUser->pasien()->update(['app_user_id' => null]);
             }
             
-            // Delete app user and user
-            DB::transaction(function () use ($user) {
-                // Delete app user first
-                if ($user->appUser) {
-                    $user->appUser->delete();
-                }
-                
-                // Then delete user
-                $user->delete();
-            });
+            // Permanently delete the AppUser
+            $appUser->forceDelete();
+            
+            DB::commit();
             
             return redirect()->route('app-users.index')
                 ->with('success', 'Pengguna aplikasi berhasil dihapus.');
-                
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
-    
-    /**
-     * Toggle user active status.
-     */
-    public function toggleActive($id)
-    {
-        $user = User::where('user_type', 'app_user')->findOrFail($id);
-        
-        try {
-            $user->update([
-                'is_active' => !$user->is_active,
-            ]);
-            
-            $status = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
+            DB::rollBack();
             
             return redirect()->back()
-                ->with('success', "Pengguna berhasil {$status}.");
-                
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus pengguna. Silakan coba lagi.');
         }
     }
-} 
+}

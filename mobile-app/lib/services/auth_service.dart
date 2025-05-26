@@ -16,18 +16,9 @@ class AuthService {
 
   AuthService._internal();
 
-  // Validate email to ensure it uses @gmail.com
-  void _validateEmail(String email) {
-    if (!email.endsWith('@gmail.com')) {
-      throw Exception('Email harus menggunakan domain @gmail.com');
-    }
-  }
-
   // User login with email
   Future<UserModel?> login(String email, String password) async {
     try {
-      _validateEmail(email);
-
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/login'),
         headers: {'Content-Type': 'application/json'},
@@ -57,24 +48,26 @@ class AuthService {
   }
 
   // User registration
-  Future<UserModel?> register(
-    String name,
-    String email,
-    String password,
-    String passwordConfirmation,
-    String phone,
-    String nik,
-  ) async {
+  Future<UserModel?> register({
+    required String name,
+    required String email,
+    required String password,
+    required String passwordConfirmation,
+    required String phone,
+    required String address,
+    required String gender,
+    String? dateOfBirth,
+  }) async {
     try {
-      _validateEmail(email);
-
       final userData = {
         'name': name,
         'email': email,
         'password': password,
         'password_confirmation': passwordConfirmation,
-        'phone': phone,
-        'nik': nik,
+        'no_hp': phone,
+        'alamat': address,
+        'jenis_kelamin': gender,
+        if (dateOfBirth != null) 'tanggal_lahir': dateOfBirth,
       };
 
       final response = await http.post(
@@ -91,7 +84,9 @@ class AuthService {
       } else {
         String errorMessage = data['message'] ?? 'Registrasi gagal';
         if (data['errors'] != null) {
-          errorMessage += ': ${data['errors'].toString()}';
+          // Combine error messages for better user feedback
+          final errors = data['errors'] as Map<String, dynamic>;
+          errorMessage += ': ${errors.values.join(', ')}';
         }
         throw Exception(errorMessage);
       }
@@ -106,60 +101,13 @@ class AuthService {
     }
   }
 
-  // Register as app user
-  Future<UserModel?> registerAsAppUser(Map<String, dynamic> appUserData) async {
-    try {
-      final user = await getUserData();
-
-      if (user == null) {
-        throw Exception('User tidak ditemukan');
-      }
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/register-as-app-user'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${user.token}',
-        },
-        body: jsonEncode(appUserData),
-      );
-
-      final data = jsonDecode(response.body);
-      if (response.statusCode == 201 && data['success'] == true) {
-        final updatedUser = user.copyWith(
-          isAppUser: data['data']['is_app_user'] ?? false,
-          appUserData: data['data']['app_user_data'] != null
-              ? AppUserModel.fromJson(data['data']['app_user_data'])
-              : null,
-        );
-
-        await _saveUserData(updatedUser);
-        return updatedUser;
-      } else {
-        String errorMessage = data['message'] ?? 'P	urlah pengguna aplikasi gagal';
-        if (data['errors'] != null) {
-          errorMessage += ': ${data['errors'].toString()}';
-        }
-        throw Exception(errorMessage);
-      }
-    } on SocketException {
-      throw Exception('Tidak dapat terhubung ke server. Periksa koneksi Anda.');
-    } on HttpException {
-      throw Exception('Terjadi kesalahan HTTP saat pendaftaran pengguna aplikasi.');
-    } on FormatException {
-      throw Exception('Format respons server tidak valid.');
-    } catch (e) {
-      throw Exception('Terjadi kesalahan: ${e.toString()}');
-    }
-  }
-
   // Get user profile
   Future<UserModel?> getProfile() async {
     try {
       final user = await getUserData();
 
-      if (user == null) {
-        throw Exception('User tidak ditemukan');
+      if (user == null || user.token == null) {
+        throw Exception('User tidak ditemukan atau belum login');
       }
 
       final response = await http.get(
@@ -205,7 +153,9 @@ class AuthService {
   Future<void> _saveUserData(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-        userKey, jsonEncode(user.toJson()..addAll({'token': user.token})));
+      userKey,
+      jsonEncode(user.toJson()..addAll({'token': user.token})),
+    );
   }
 
   // Clear user data from SharedPreferences (logout)
@@ -217,7 +167,7 @@ class AuthService {
   // Check if user is logged in
   Future<bool> isLoggedIn() async {
     final user = await getUserData();
-    return user != null;
+    return user != null && user.token != null;
   }
 
   // Check if user is an app user
@@ -226,6 +176,7 @@ class AuthService {
     return user != null && user.isAppUser;
   }
 
+  // Get authentication token
   Future<String?> getToken() async {
     final user = await getUserData();
     return user?.token;

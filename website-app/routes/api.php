@@ -4,10 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PasienApiController;
 use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\ClusterApiController;
 use App\Http\Controllers\Api\FaqApiController;
 use App\Http\Controllers\Api\JadwalDokterApiController;
 use App\Http\Controllers\Api\MedicalRecordApiController;
 use App\Http\Controllers\Api\PengumumanApiController;
+use App\Http\Controllers\Api\PendaftaranApiController;
 use App\Models\Faq;
 
 /*
@@ -28,7 +30,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Auth routes for mobile app
 Route::post('/register', [AuthApiController::class, 'register']);
 Route::post('/login', [AuthApiController::class, 'login']);
-Route::post('/login-with-nik', [AuthApiController::class, 'loginWithNik']);
 
 // Protected routes that require authentication
 Route::middleware('auth:sanctum')->group(function () {
@@ -38,11 +39,23 @@ Route::middleware('auth:sanctum')->group(function () {
     // Register as patient (convert app user to patient)
     Route::post('/register-as-patient', [AuthApiController::class, 'registerAsPatient']);
 
+        // Cluster routes
+    Route::get('/clusters', [PendaftaranApiController::class, 'getClusters']);
+
+    // Pendaftaran routes
+    Route::post('/', [PendaftaranApiController::class, 'store']);
+    Route::get('/{id}', [PendaftaranApiController::class, 'show']);
+    Route::put('/{id}', [PendaftaranApiController::class, 'update']);
+    Route::delete('/{id}', [PendaftaranApiController::class, 'destroy']);
+    Route::get('/', [PendaftaranApiController::class, 'index']);
+
     // Pasien routes
     Route::get('/pasien', [PasienApiController::class, 'index']);
     Route::get('/pasien/{pasien}', [PasienApiController::class, 'show']);
     Route::put('/pasien/{pasien}', [PasienApiController::class, 'update']);
 
+    Route::get('/pasien/medical-records', [MedicalRecordApiController::class, 'index']);
+    Route::get('/pasien/medical-records/{id}', [MedicalRecordApiController::class, 'show']);
 
 });
 
@@ -59,11 +72,6 @@ Route::get('/faq', [FaqApiController::class, 'index']);
 Route::get('/faq/{faq}', [FaqApiController::class, 'show']);
 
 
-// Rute rekam medis - memerlukan autentikasi
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/pasien/medical-records', [MedicalRecordApiController::class, 'index']);
-    Route::get('/pasien/medical-records/{id}', [MedicalRecordApiController::class, 'show']);
-});
-//faq
+
 
 

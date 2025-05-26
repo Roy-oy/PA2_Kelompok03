@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 
 class RegisterScreen extends StatefulWidget {
   final Function() onRegisterSuccess;
@@ -20,16 +21,18 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _passwordController = TextEditingController();
   final _passwordConfirmController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
+
+  DateTime? _selectedBirthDate;
+  String _selectedGender = '';
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   String _errorMessage = '';
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  final _displayDateFormat = DateFormat('dd/MM/yyyy');
+  final _apiDateFormat = DateFormat('yyyy-MM-dd');
 
   @override
   void dispose() {
@@ -38,11 +41,17 @@ class _RegisterScreenState extends State<RegisterScreen>
     _passwordController.dispose();
     _passwordConfirmController.dispose();
     _phoneController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_selectedGender.isEmpty) {
+      _showErrorSnackBar('Jenis kelamin harus dipilih');
       return;
     }
 
@@ -53,15 +62,18 @@ class _RegisterScreenState extends State<RegisterScreen>
 
     try {
       await AuthService().register(
-        _nameController.text,
-        _emailController.text,
-        _passwordController.text,
-        _passwordConfirmController.text,
-        _phoneController.text,
-        '', 
+        name: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+        passwordConfirmation: _passwordConfirmController.text,
+        phone: _phoneController.text,
+        address: _addressController.text,
+        gender: _selectedGender,
+        dateOfBirth: _selectedBirthDate != null
+            ? _apiDateFormat.format(_selectedBirthDate!)
+            : null,
       );
 
-      // Show success snackbar
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -79,7 +91,6 @@ class _RegisterScreenState extends State<RegisterScreen>
         );
       }
 
-      // Navigate to home
       widget.onRegisterSuccess();
     } catch (e) {
       setState(() {
@@ -92,10 +103,48 @@ class _RegisterScreenState extends State<RegisterScreen>
     }
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedBirthDate ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      helpText: 'Pilih Tanggal Lahir',
+      cancelText: 'BATAL',
+      confirmText: 'PILIH',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF06489F),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF333333),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF06489F),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != _selectedBirthDate) {
+      setState(() {
+        _selectedBirthDate = picked;
+      });
+    }
+  }
+
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: const TextStyle(fontFamily: 'KohSantepheap'),
+        ),
         backgroundColor: Colors.red[700],
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
@@ -104,9 +153,6 @@ class _RegisterScreenState extends State<RegisterScreen>
         ),
       ),
     );
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
@@ -117,19 +163,14 @@ class _RegisterScreenState extends State<RegisterScreen>
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Main content with scrolling
           SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                // Spacer for header
                 Container(
-                  height: screenSize.height *
-                      0.23, // Slightly less than header size
+                  height: screenSize.height * 0.23,
                   color: Colors.transparent,
                 ),
-
-                // Content that will appear below the header
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -137,8 +178,6 @@ class _RegisterScreenState extends State<RegisterScreen>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(height: screenSize.height * 0.05),
-
-                      // Register prompt text
                       Container(
                         alignment: Alignment.centerLeft,
                         margin: const EdgeInsets.only(bottom: 24),
@@ -166,14 +205,11 @@ class _RegisterScreenState extends State<RegisterScreen>
                           ],
                         ),
                       ),
-
-                      // Registration form without card container
                       Form(
                         key: _formKey,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Error message if any
                             if (_errorMessage.isNotEmpty)
                               Container(
                                 padding: const EdgeInsets.all(12),
@@ -206,8 +242,6 @@ class _RegisterScreenState extends State<RegisterScreen>
                                   ],
                                 ),
                               ),
-
-                            // Name field
                             _buildInputField(
                               controller: _nameController,
                               labelText: 'Nama Lengkap',
@@ -215,14 +249,15 @@ class _RegisterScreenState extends State<RegisterScreen>
                               prefixIcon: Iconsax.user,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Nama lengkap tidak boleh kosong';
+                                  return 'Nama lengkap wajib diisi';
+                                }
+                                if (value.length > 255) {
+                                  return 'Nama maksimal 255 karakter';
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 16),
-
-                            // Email field
                             _buildInputField(
                               controller: _emailController,
                               labelText: 'Email',
@@ -231,19 +266,16 @@ class _RegisterScreenState extends State<RegisterScreen>
                               keyboardType: TextInputType.emailAddress,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Email tidak boleh kosong';
+                                  return 'Email wajib diisi';
                                 }
-                                final emailRegex =
-                                    RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                                if (!emailRegex.hasMatch(value)) {
-                                  return 'Email tidak valid';
+                                if (!value.endsWith('@gmail.com') &&
+                                    !value.endsWith('@yahoo.com')) {
+                                  return 'Email harus menggunakan @gmail.com atau @yahoo.com';
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 16),
-
-                            // Phone field
                             _buildInputField(
                               controller: _phoneController,
                               labelText: 'No. Telepon',
@@ -252,7 +284,10 @@ class _RegisterScreenState extends State<RegisterScreen>
                               keyboardType: TextInputType.phone,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'No. telepon tidak boleh kosong';
+                                  return 'No. telepon wajib diisi';
+                                }
+                                if (!RegExp(r'^\d+$').hasMatch(value)) {
+                                  return 'No. telepon hanya boleh angka';
                                 }
                                 if (value.length < 10 || value.length > 13) {
                                   return 'No. telepon harus 10-13 digit';
@@ -261,8 +296,44 @@ class _RegisterScreenState extends State<RegisterScreen>
                               },
                             ),
                             const SizedBox(height: 16),
-
-                            // Password field
+                            GestureDetector(
+                              onTap: () => _selectDate(context),
+                              child: AbsorbPointer(
+                                child: _buildInputField(
+                                  controller: TextEditingController(
+                                    text: _selectedBirthDate != null
+                                        ? _displayDateFormat
+                                            .format(_selectedBirthDate!)
+                                        : '',
+                                  ),
+                                  labelText: 'Tanggal Lahir',
+                                  hintText: 'Pilih tanggal lahir',
+                                  prefixIcon: Iconsax.calendar,
+                                  validator: (value) {
+                                    return null; // Optional field
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildGenderSelector(),
+                            const SizedBox(height: 16),
+                            _buildInputField(
+                              controller: _addressController,
+                              labelText: 'Alamat',
+                              hintText: 'Masukkan alamat lengkap',
+                              prefixIcon: Iconsax.location,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Alamat wajib diisi';
+                                }
+                                if (value.length > 255) {
+                                  return 'Alamat maksimal 255 karakter';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
                             _buildInputField(
                               controller: _passwordController,
                               labelText: 'Password',
@@ -277,17 +348,15 @@ class _RegisterScreenState extends State<RegisterScreen>
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Password tidak boleh kosong';
+                                  return 'Password wajib diisi';
                                 }
-                                if (value.length < 6) {
-                                  return 'Password minimal 6 karakter';
+                                if (value.length < 8) {
+                                  return 'Password minimal 8 karakter';
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 16),
-
-                            // Confirm Password field
                             _buildInputField(
                               controller: _passwordConfirmController,
                               labelText: 'Konfirmasi Password',
@@ -303,17 +372,15 @@ class _RegisterScreenState extends State<RegisterScreen>
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Konfirmasi password tidak boleh kosong';
+                                  return 'Konfirmasi password wajib diisi';
                                 }
                                 if (value != _passwordController.text) {
-                                  return 'Password tidak sama';
+                                  return 'Konfirmasi password tidak cocok';
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 24),
-
-                            // Register button
                             SizedBox(
                               width: double.infinity,
                               height: 56,
@@ -361,10 +428,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                       ),
                               ),
                             ),
-
                             const SizedBox(height: 20),
-
-                            // Login link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -399,8 +463,6 @@ class _RegisterScreenState extends State<RegisterScreen>
                           ],
                         ),
                       ),
-
-                      // Bottom spacing
                       SizedBox(height: screenSize.height * 0.05),
                     ],
                   ),
@@ -408,8 +470,6 @@ class _RegisterScreenState extends State<RegisterScreen>
               ],
             ),
           ),
-
-          // Top wave decoration - fixed position
           Positioned(
             top: 0,
             left: 0,
@@ -422,8 +482,6 @@ class _RegisterScreenState extends State<RegisterScreen>
               ),
             ),
           ),
-
-          // App title - fixed position on top of wave
           const Positioned(
             top: 80,
             left: 0,
@@ -466,7 +524,92 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  // Build an animated text field with label
+  Widget _buildGenderSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            'Jenis Kelamin',
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontFamily: 'KohSantepheap',
+              fontWeight: FontWeight.w500,
+              fontSize: 15,
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildGenderOption(
+                title: 'Laki-laki',
+                value: 'laki-laki',
+                icon: Iconsax.man,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildGenderOption(
+                title: 'Perempuan',
+                value: 'perempuan',
+                icon: Iconsax.woman,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGenderOption({
+    required String title,
+    required String value,
+    required IconData icon,
+  }) {
+    final isSelected = _selectedGender == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedGender = value;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color:
+              isSelected ? const Color(0xFF06489F).withOpacity(0.1) : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF06489F) : Colors.grey.shade300,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? const Color(0xFF06489F) : Colors.grey.shade600,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'KohSantepheap',
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? const Color(0xFF06489F) : Colors.grey.shade700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildInputField({
     required TextEditingController controller,
     required String labelText,
@@ -491,93 +634,87 @@ class _RegisterScreenState extends State<RegisterScreen>
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          TextFormField(
-            controller: controller,
-            keyboardType: keyboardType,
-            obscureText: isPassword ? !isPasswordVisible : false,
-            style: const TextStyle(
-              fontSize: 16,
-              fontFamily: 'KohSantepheap',
-              color: Color(0xFF333333),
-            ),
-            validator: validator,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            decoration: InputDecoration(
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: Color(0xFF06489F), width: 1.5),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.red[400]!, width: 1),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.red[400]!, width: 1.5),
-              ),
-              labelText: labelText,
-              labelStyle: TextStyle(
-                color: Colors.grey[700],
-                fontFamily: 'KohSantepheap',
-                fontWeight: FontWeight.w500,
-                fontSize: 15,
-              ),
-              errorStyle: TextStyle(
-                color: Colors.red[700],
-                fontSize: 12,
-                fontFamily: 'KohSantepheap',
-                height: 0.8, // Reduce the height of error text
-              ),
-              hintText: hintText,
-              hintStyle: TextStyle(
-                color: Colors.grey[400],
-                fontFamily: 'KohSantepheap',
-                fontSize: 14,
-              ),
-              prefixIcon: Container(
-                margin: const EdgeInsets.only(left: 12, right: 8),
-                child: Icon(
-                  prefixIcon,
-                  color: const Color(0xFF06489F),
-                  size: 22,
-                ),
-              ),
-              prefixIconConstraints: const BoxConstraints(minWidth: 45),
-              suffixIcon: isPassword
-                  ? Container(
-                      margin: const EdgeInsets.only(right: 12),
-                      child: IconButton(
-                        icon: Icon(
-                          isPasswordVisible ? Iconsax.eye : Iconsax.eye_slash,
-                          color: const Color(0xFF06489F),
-                          size: 22,
-                        ),
-                        onPressed: onTogglePasswordVisibility,
-                      ),
-                    )
-                  : null,
-              floatingLabelBehavior: FloatingLabelBehavior.auto,
-              filled: true,
-              fillColor: Colors.grey.shade50,
-              // Reduce error message container effects
-              isDense: true,
-              errorMaxLines: 1,
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        obscureText: isPassword ? !isPasswordVisible : false,
+        style: const TextStyle(
+          fontSize: 16,
+          fontFamily: 'KohSantepheap',
+          color: Color(0xFF333333),
+        ),
+        validator: validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        decoration: InputDecoration(
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF06489F), width: 1.5),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.red[400]!, width: 1),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.red[400]!, width: 1.5),
+          ),
+          labelText: labelText,
+          labelStyle: TextStyle(
+            color: Colors.grey[700],
+            fontFamily: 'KohSantepheap',
+            fontWeight: FontWeight.w500,
+            fontSize: 15,
+          ),
+          errorStyle: TextStyle(
+            color: Colors.red[700],
+            fontSize: 12,
+            fontFamily: 'KohSantepheap',
+            height: 0.8,
+          ),
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Colors.grey[400],
+            fontFamily: 'KohSantepheap',
+            fontSize: 14,
+          ),
+          prefixIcon: Container(
+            margin: const EdgeInsets.only(left: 12, right: 8),
+            child: Icon(
+              prefixIcon,
+              color: const Color(0xFF06489F),
+              size: 22,
             ),
           ),
-        ],
+          prefixIconConstraints: const BoxConstraints(minWidth: 45),
+          suffixIcon: isPassword
+              ? Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  child: IconButton(
+                    icon: Icon(
+                      isPasswordVisible ? Iconsax.eye : Iconsax.eye_slash,
+                      color: const Color(0xFF06489F),
+                      size: 22,
+                    ),
+                    onPressed: onTogglePasswordVisibility,
+                  ),
+                )
+              : null,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          isDense: true,
+          errorMaxLines: 1,
+        ),
       ),
     );
   }
@@ -586,26 +723,19 @@ class _RegisterScreenState extends State<RegisterScreen>
 class _TopWavePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // Main background - solid color base with button matching color
     final mainPath = Path();
     mainPath.moveTo(0, 0);
     mainPath.lineTo(size.width, 0);
     mainPath.lineTo(size.width, size.height * 0.8);
-
-    // Create a subtle organic curve at the bottom
     final firstControlPoint = Offset(size.width * 0.75, size.height * 0.95);
     final firstEndPoint = Offset(size.width * 0.5, size.height * 0.85);
-    mainPath.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
-        firstEndPoint.dx, firstEndPoint.dy);
-
+    mainPath.quadraticBezierTo(
+        firstControlPoint.dx, firstControlPoint.dy, firstEndPoint.dx, firstEndPoint.dy);
     final secondControlPoint = Offset(size.width * 0.25, size.height * 0.75);
     final secondEndPoint = Offset(0, size.height * 0.85);
     mainPath.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
         secondEndPoint.dx, secondEndPoint.dy);
-
     mainPath.close();
-
-    // Draw main shape with the primary color (same as button color)
     final mainPaint = Paint()
       ..color = const Color(0xFF06489F)
       ..style = PaintingStyle.fill;

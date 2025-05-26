@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->string('spesialisasi'); // Spesialisasi dokter
+            $table->enum('spesialisasi', ['umum', 'gigi']);
             $table->string('email')->unique();
-            $table->string('no_telepon')->nullable();
-            $table->string('no_str')->unique(); // Nomor STR/SIP
-            $table->string('jenis_kelamin'); // Jenis kelamin
-            $table->date('tanggal_lahir'); // Tanggal lahir
-            $table->text('alamat')->nullable(); // Alamat dokter
+            $table->string('no_hp')->unique();
+            $table->string('no_str', 12)->unique();
+            $table->enum('jenis_kelamin', ['laki-laki', 'perempuan']);
+            $table->date('tanggal_lahir'); 
+            $table->string('alamat'); 
             $table->string('foto_profil')->nullable(); 
-            $table->enum('status', ['active', 'inactive'])->default('active'); // Status kerja
+            $table->enum('status', ['active', 'inactive'])->default('active'); 
             $table->timestamps();
         });
     }

@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Validator;
 class PasienController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the patients.
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
@@ -18,7 +20,9 @@ class PasienController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new patient.
+     *
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -26,24 +30,27 @@ class PasienController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created patient in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            // Hapus validasi no_rm karena akan digenerate otomatis
+            'nik' => 'required|string|size:16|unique:pasiens,nik',
+            'no_kk' => 'nullable|string|max:16',
             'nama' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'tanggal_lahir' => 'required|date',
             'tempat_lahir' => 'required|string|max:255',
             'alamat' => 'required|string',
-            'no_telepon' => 'nullable|string|max:15',
-            'pekerjaan' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:15|unique:pasiens,no_hp',
+            'pekerjaan' => 'nullable|string|max:255|unique:pasiens,pekerjaan',
             'no_bpjs' => 'nullable|string|max:20',
-            'golongan_darah' => 'nullable|in:A,B,AB,O,Tidak Diketahui',
+            'golongan_darah' => 'required|in:A,B,AB,O',
             'riwayat_alergi' => 'nullable|string',
             'riwayat_penyakit' => 'nullable|string',
-            'keluhan_sakit' => 'required|string', // Add this line
         ]);
 
         if ($validator->fails()) {
@@ -52,14 +59,31 @@ class PasienController extends Controller
                 ->withInput();
         }
 
-        Pasien::create($request->all());
+        Pasien::create($request->only([
+            'nik',
+            'no_kk',
+            'nama',
+            'jenis_kelamin',
+            'tanggal_lahir',
+            'tempat_lahir',
+            'alamat',
+            'no_hp',
+            'pekerjaan',
+            'no_bpjs',
+            'golongan_darah',
+            'riwayat_alergi',
+            'riwayat_penyakit',
+        ]));
 
         return redirect()->route('pasien.index')
             ->with('success', 'Data pasien berhasil ditambahkan.');
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified patient.
+     *
+     * @param  \App\Models\Pasien  $pasien
+     * @return \Illuminate\View\View
      */
     public function show(Pasien $pasien)
     {
@@ -67,7 +91,10 @@ class PasienController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified patient.
+     *
+     * @param  \App\Models\Pasien  $pasien
+     * @return \Illuminate\View\View
      */
     public function edit(Pasien $pasien)
     {
@@ -75,24 +102,28 @@ class PasienController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified patient in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Pasien  $pasien
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Pasien $pasien)
     {
         $validator = Validator::make($request->all(), [
-            // Hapus validasi no_rm karena tidak bisa diupdate
+            'nik' => 'required|string|size:16|unique:pasiens,nik,' . $pasien->id,
+            'no_kk' => 'nullable|string|max:16',
             'nama' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'tanggal_lahir' => 'required|date',
             'tempat_lahir' => 'required|string|max:255',
             'alamat' => 'required|string',
-            'no_telepon' => 'nullable|string|max:15',
-            'pekerjaan' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:15|unique:pasiens,no_hp,' . $pasien->id,
+            'pekerjaan' => 'nullable|string|max:255|unique:pasiens,pekerjaan,' . $pasien->id,
             'no_bpjs' => 'nullable|string|max:20',
-            'golongan_darah' => 'nullable|in:A,B,AB,O,Tidak Diketahui',
+            'golongan_darah' => 'required|in:A,B,AB,O',
             'riwayat_alergi' => 'nullable|string',
             'riwayat_penyakit' => 'nullable|string',
-            'keluhan_sakit' => 'required|string', 
         ]);
 
         if ($validator->fails()) {
@@ -101,16 +132,31 @@ class PasienController extends Controller
                 ->withInput();
         }
 
-        // Remove no_rm from request to prevent updates
-        $input = $request->except('no_rm');
-        $pasien->update($input);
+        $pasien->update($request->only([
+            'nik',
+            'no_kk',
+            'nama',
+            'jenis_kelamin',
+            'tanggal_lahir',
+            'tempat_lahir',
+            'alamat',
+            'no_hp',
+            'pekerjaan',
+            'no_bpjs',
+            'golongan_darah',
+            'riwayat_alergi',
+            'riwayat_penyakit',
+        ]));
 
         return redirect()->route('pasien.index')
             ->with('success', 'Data pasien berhasil diperbarui.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified patient from storage.
+     *
+     * @param  \App\Models\Pasien  $pasien
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Pasien $pasien)
     {

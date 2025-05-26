@@ -13,21 +13,25 @@ return new class extends Migration
     {
         Schema::create('pasiens', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('no_rm')->unique()->comment('Nomor Rekam Medis');
+            $table->foreignId('app_user_id')->nullable()->constrained('app_users');
+            $table->string('no_rm', 12)->unique();
+            $table->string('nik', 16)->unique();
+            $table->string('no_kk', 16)->nullable();
             $table->string('nama');
             $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan']);
             $table->date('tanggal_lahir');
             $table->string('tempat_lahir');
             $table->string('alamat');
-            $table->string('no_telepon')->nullable();
+            $table->string('no_hp', 13)->unique()->nullable();
             $table->string('pekerjaan')->nullable();
-            $table->string('no_bpjs')->nullable();
-            $table->enum('golongan_darah', ['A', 'B', 'AB', 'O', 'Tidak Diketahui'])->default('Tidak Diketahui');
-            $table->text('riwayat_alergi')->nullable();
-            $table->text('riwayat_penyakit')->nullable();
+            $table->string('no_bpjs', 13)->unique()->nullable();
+            $table->enum('golongan_darah', ['A', 'B', 'AB', 'O']);
+            $table->string('riwayat_alergi')->nullable();
+            $table->string('riwayat_penyakit')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->index('no_bpjs');
+            $table->index('nik');
         });
     }
 

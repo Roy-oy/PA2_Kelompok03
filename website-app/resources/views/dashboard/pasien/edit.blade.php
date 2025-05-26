@@ -76,6 +76,40 @@
                                 <p class="mt-1 text-xs text-gray-500">Nomor RM tidak dapat diubah</p>
                             </div>
                             
+                            <!-- NIK -->
+                            <div>
+                                <label for="nik" class="block text-sm font-medium text-gray-700 mb-1">
+                                    NIK
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-id-card text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="nik" name="nik" value="{{ $pasien->nik }}" 
+                                        class="pl-10 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5" 
+                                        readonly>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">NIK tidak dapat diubah</p>
+                            </div>
+
+                            <!-- No KK -->
+                            <div>
+                                <label for="no_kk" class="block text-sm font-medium text-gray-700 mb-1">
+                                    No. Kartu Keluarga
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-address-card text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="no_kk" name="no_kk" value="{{ old('no_kk', $pasien->no_kk) }}" 
+                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 @error('no_kk') border-red-500 @enderror" 
+                                        placeholder="Masukkan nomor KK">
+                                </div>
+                                @error('no_kk')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Nama -->
                             <div>
                                 <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">
@@ -144,9 +178,10 @@
                                         <i class="fas fa-calendar-alt text-gray-400"></i>
                                     </div>
                                     <input type="date" id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir', $pasien->tanggal_lahir->format('Y-m-d')) }}" 
-                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 @error('tanggal_lahir') border-red-500 @enderror" 
-                                        required>
+                                        class="pl-10 bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed @error('tanggal_lahir') border-red-500 @enderror" 
+                                        readonly required>
                                 </div>
+                                <p class="mt-1 text-xs text-gray-500">Tanggal lahir tidak dapat diubah</p>
                                 @error('tanggal_lahir')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -170,20 +205,20 @@
                                 @enderror
                             </div>
 
-                            <!-- No Telepon -->
+                            <!-- No HP -->
                             <div>
-                                <label for="no_telepon" class="block text-sm font-medium text-gray-700 mb-1">
-                                    No. Telepon
+                                <label for="no_hp" class="block text-sm font-medium text-gray-700 mb-1">
+                                    No. HP
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-phone text-gray-400"></i>
                                     </div>
-                                    <input type="text" id="no_telepon" name="no_telepon" value="{{ old('no_telepon', $pasien->no_telepon) }}" 
-                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 @error('no_telepon') border-red-500 @enderror" 
-                                        placeholder="Masukkan nomor telepon">
+                                    <input type="text" id="no_hp" name="no_hp" value="{{ old('no_hp', $pasien->no_hp) }}" 
+                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 @error('no_hp') border-red-500 @enderror" 
+                                        placeholder="Masukkan nomor HP">
                                 </div>
-                                @error('no_telepon')
+                                @error('no_hp')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -208,7 +243,7 @@
                         </div>
                     </div>
 
-                    <!-- Medical Information Section -->
+                    <!-- Informasi Medis -->
                     <div>
                         <h3 class="text-lg font-medium text-gray-800 mb-3 pb-2 border-b border-gray-200">
                             <i class="fas fa-notes-medical text-red-500 mr-2"></i>
@@ -225,9 +260,12 @@
                                         <i class="fas fa-id-card text-gray-400"></i>
                                     </div>
                                     <input type="text" id="no_bpjs" name="no_bpjs" value="{{ old('no_bpjs', $pasien->no_bpjs) }}" 
-                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 @error('no_bpjs') border-red-500 @enderror" 
-                                        placeholder="Masukkan nomor BPJS jika ada">
+                                        class="pl-10 {{ $pasien->no_bpjs ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50' }} border border-gray-300 text-gray-900 text-sm rounded-lg {{ $pasien->no_bpjs ? '' : 'focus:ring-amber-500 focus:border-amber-500' }} block w-full p-2.5 @error('no_bpjs') border-red-500 @enderror" 
+                                        placeholder="Masukkan nomor BPJS jika ada" {{ $pasien->no_bpjs ? 'readonly' : '' }}>
                                 </div>
+                                @if ($pasien->no_bpjs)
+                                    <p class="mt-1 text-xs text-gray-500">No. BPJS tidak dapat diubah</p>
+                                @endif
                                 @error('no_bpjs')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -236,28 +274,35 @@
                             <!-- Golongan Darah -->
                             <div>
                                 <label for="golongan_darah" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Golongan Darah
+                                    Golongan Darah <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-tint text-gray-400"></i>
                                     </div>
                                     <select id="golongan_darah" name="golongan_darah" 
-                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 @error('golongan_darah') border-red-500 @enderror">
-                                        <option value="Tidak Diketahui" {{ old('golongan_darah', $pasien->golongan_darah) == 'Tidak Diketahui' ? 'selected' : '' }}>Tidak Diketahui</option>
+                                        class="pl-10 {{ $pasien->golongan_darah ? 'bg-gray-100 cursor-not-allowed' : 'bg-gray-50' }} border border-gray-300 text-gray-900 text-sm rounded-lg {{ $pasien->golongan_darah ? '' : 'focus:ring-amber-500 focus:border-amber-500' }} block w-full p-2.5 @error('golongan_darah') border-red-500 @enderror" 
+                                        {{ $pasien->golongan_darah ? 'disabled' : '' }} required>
+                                        <option value="">-- Pilih Golongan Darah --</option>
                                         <option value="A" {{ old('golongan_darah', $pasien->golongan_darah) == 'A' ? 'selected' : '' }}>A</option>
                                         <option value="B" {{ old('golongan_darah', $pasien->golongan_darah) == 'B' ? 'selected' : '' }}>B</option>
                                         <option value="AB" {{ old('golongan_darah', $pasien->golongan_darah) == 'AB' ? 'selected' : '' }}>AB</option>
                                         <option value="O" {{ old('golongan_darah', $pasien->golongan_darah) == 'O' ? 'selected' : '' }}>O</option>
                                     </select>
+                                    @if ($pasien->golongan_darah)
+                                        <input type="hidden" name="golongan_darah" value="{{ $pasien->golongan_darah }}">
+                                    @endif
                                 </div>
+                                @if ($pasien->golongan_darah)
+                                    <p class="mt-1 text-xs text-gray-500">Golongan darah tidak dapat diubah</p>
+                                @endif
                                 @error('golongan_darah')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
                             <!-- Riwayat Alergi -->
-                            <div>
+                            <div class="md:col-span-2">
                                 <label for="riwayat_alergi" class="block text-sm font-medium text-gray-700 mb-1">
                                     Riwayat Alergi
                                 </label>
@@ -275,7 +320,7 @@
                             </div>
 
                             <!-- Riwayat Penyakit -->
-                            <div>
+                            <div class="md:col-span-2">
                                 <label for="riwayat_penyakit" class="block text-sm font-medium text-gray-700 mb-1">
                                     Riwayat Penyakit
                                 </label>
@@ -291,31 +336,13 @@
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-
-                            <!-- Keluhan Sakit -->
-                            <div class="md:col-span-2">
-                                <label for="keluhan_sakit" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Keluhan Sakit <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative">
-                                    <div class="absolute top-3 left-3 flex items-start pointer-events-none">
-                                        <i class="fas fa-procedures text-gray-400"></i>
-                                    </div>
-                                    <textarea id="keluhan_sakit" name="keluhan_sakit" rows="3" 
-                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-2.5 @error('keluhan_sakit') border-red-500 @enderror" 
-                                        placeholder="Deskripsikan keluhan yang dialami" required>{{ old('keluhan_sakit', $pasien->keluhan_sakit) }}</textarea>
-                                </div>
-                                @error('keluhan_sakit')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="flex justify-end items-center space-x-3 mt-8 pt-5 border-t border-gray-200">
-                    <a href="{{ route('pasien.show', $pasien->id) }}" class="inline-flex items-center px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors focus:ring-4 focus:ring-gray-200">
+                    <a href="{{ route('pasien.show', $pasien->id) }}" class="inline-flex items-center px-4 py-2.5 bg-gray-100 at text-gray-700 rounded-lg hover:bg-gray-200 transition-colors focus:ring-4 focus:ring-gray-200">
                         <i class="fas fa-times mr-2"></i>
                         Batal
                     </a>

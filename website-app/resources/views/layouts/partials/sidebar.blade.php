@@ -26,15 +26,21 @@
                 </a>
             </li>
             <li>
-                <a href="/pasien" class="{{ request()->is('pasien*') ? 'flex items-center px-4 py-2.5 text-gray-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors group' : 'flex items-center px-4 py-2.5 text-gray-600 hover:bg-green-50 hover:text-gray-800 rounded-lg transition-colors group' }}">
-                    <i class="fas fa-users w-5 h-5 mr-3 {{ request()->is('pasien*') ? 'text-green-600' : 'text-gray-500 group-hover:text-green-600' }} transition-colors"></i>
-                    <span class="{{ request()->is('pasien*') ? 'font-medium' : '' }}">Pasien</span>
+                <a href="/pendaftaran" class="{{ request()->is('pendaftaran*') ? 'flex items-center px-4 py-2.5 text-gray-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors group' : 'flex items-center px-4 py-2.5 text-gray-600 hover:bg-green-50 hover:text-gray-800 rounded-lg transition-colors group' }}">
+                    <i class="fas fa-users w-5 h-5 mr-3 {{ request()->is('pendaftaran*') ? 'text-green-600' : 'text-gray-500 group-hover:text-green-600' }} transition-colors"></i>
+                    <span class="{{ request()->is('pendaftaran*') ? 'font-medium' : '' }}">Pendaftaran</span>
                 </a>
             </li>
             <li>
                 <a href="/antrian" class="{{ request()->is('antrian*') ? 'flex items-center px-4 py-2.5 text-gray-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors group' : 'flex items-center px-4 py-2.5 text-gray-600 hover:bg-green-50 hover:text-gray-800 rounded-lg transition-colors group' }}">
                     <i class="fas fa-users w-5 h-5 mr-3 {{ request()->is('antrian*') ? 'text-green-600' : 'text-gray-500 group-hover:text-green-600' }} transition-colors"></i>
                     <span class="{{ request()->is('antrian*') ? 'font-medium' : '' }}">Antrian</span>
+                </a>
+            </li>
+            <li>
+                <a href="/pasien" class="{{ request()->is('pasien*') ? 'flex items-center px-4 py-2.5 text-gray-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors group' : 'flex items-center px-4 py-2.5 text-gray-600 hover:bg-green-50 hover:text-gray-800 rounded-lg transition-colors group' }}">
+                    <i class="fas fa-users w-5 h-5 mr-3 {{ request()->is('pasien*') ? 'text-green-600' : 'text-gray-500 group-hover:text-green-600' }} transition-colors"></i>
+                    <span class="{{ request()->is('pasien*') ? 'font-medium' : '' }}">Pasien</span>
                 </a>
             </li>
             <li>

@@ -29,7 +29,7 @@
     .select2-container--open .select2-dropdown--below {
         border-top: none;
         border-top-left-radius: 0;
-        border-top-right-radius: 0;
+        border-top Wright-radius: 0;
     }
     .select2-results__option {
         padding: 8px 16px;
@@ -126,28 +126,28 @@
                         <!-- Main Form (Right Column) -->
                         <div class="lg:col-span-2 order-1 lg:order-2">
                             <h3 class="text-lg font-medium text-gray-800 mb-5 pb-2 border-b border-gray-200 flex items-center">
-                            <i class="fas fa-user text-green-600 mr-2"></i>
-                            Informasi Pribadi
-                        </h3>
+                                <i class="fas fa-user text-green-600 mr-2"></i>
+                                Informasi Pribadi
+                            </h3>
                             
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Nama -->
-                            <div>
-                                <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Nama Lengkap <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-user text-gray-400"></i>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Nama -->
+                                <div>
+                                    <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Nama Lengkap <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-user text-gray-400"></i>
+                                        </div>
+                                        <input type="text" id="nama" name="nama" value="{{ old('nama', $dokter->nama) }}" 
+                                            class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('nama') border-red-500 @enderror" 
+                                            placeholder="Masukkan nama lengkap" required>
                                     </div>
-                                    <input type="text" id="nama" name="nama" value="{{ old('nama', $dokter->nama) }}" 
-                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('nama') border-red-500 @enderror" 
-                                        placeholder="Masukkan nama lengkap" required>
+                                    @error('nama')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
-                                @error('nama')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
                                 
                                 <!-- No STR -->
                                 <div>
@@ -167,27 +167,21 @@
                                     @enderror
                                 </div>
                                 
-                            <!-- Spesialisasi -->
-                            <div>
-                                <label for="spesialisasi" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Spesialisasi <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <i class="fas fa-stethoscope text-gray-400"></i>
-                                    </div>
+                                <!-- Spesialisasi -->
+                                <div>
+                                    <label for="spesialisasi" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Spesialisasi <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i class="fas fa-stethoscope text-gray-400"></i>
+                                        </div>
                                         <select id="spesialisasi" name="spesialisasi" 
                                             class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('spesialisasi') border-red-500 @enderror" 
                                             required>
                                             <option value="">-- Pilih Spesialisasi --</option>
-                                            <option value="Dokter Umum" {{ old('spesialisasi', $dokter->spesialisasi) == 'Dokter Umum' ? 'selected' : '' }}>Dokter Umum</option>
-                                            <option value="Dokter Gigi" {{ old('spesialisasi', $dokter->spesialisasi) == 'Dokter Gigi' ? 'selected' : '' }}>Dokter Gigi</option>
-                                            <option value="Dokter Anak" {{ old('spesialisasi', $dokter->spesialisasi) == 'Dokter Anak' ? 'selected' : '' }}>Dokter Anak</option>
-                                            <option value="Bidan" {{ old('spesialisasi', $dokter->spesialisasi) == 'Bidan' ? 'selected' : '' }}>Bidan</option>
-                                            <option value="Ahli Gizi" {{ old('spesialisasi', $dokter->spesialisasi) == 'Ahli Gizi' ? 'selected' : '' }}>Ahli Gizi</option>
-                                            <option value="Kesehatan Masyarakat" {{ old('spesialisasi', $dokter->spesialisasi) == 'Kesehatan Masyarakat' ? 'selected' : '' }}>Kesehatan Masyarakat</option>
-                                            <option value="Dokter Kulit" {{ old('spesialisasi', $dokter->spesialisasi) == 'Dokter Kulit' ? 'selected' : '' }}>Dokter Kulit</option>
-                                            <option value="Perawat" {{ old('spesialisasi', $dokter->spesialisasi) == 'Perawat' ? 'selected' : '' }}>Perawat</option>
+                                            <option value="umum" {{ old('spesialisasi', $dokter->spesialisasi) == 'umum' ? 'selected' : '' }}>Dokter Umum</option>
+                                            <option value="gigi" {{ old('spesialisasi', $dokter->spesialisasi) == 'gigi' ? 'selected' : '' }}>Dokter Gigi</option>
                                         </select>
                                     </div>
                                     @error('spesialisasi')
@@ -208,8 +202,8 @@
                                             class="gender-select pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('jenis_kelamin') border-red-500 @enderror" 
                                             required>
                                             <option value="">-- Pilih Jenis Kelamin --</option>
-                                            <option value="Laki-laki" data-icon="fas fa-mars text-blue-500" {{ old('jenis_kelamin', $dokter->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                                            <option value="Perempuan" data-icon="fas fa-venus text-pink-500" {{ old('jenis_kelamin', $dokter->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                            <option value="laki-laki" data-icon="fas fa-mars text-blue-500" {{ old('jenis_kelamin', $dokter->jenis_kelamin) == 'laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                            <option value="perempuan" data-icon="fas fa-venus text-pink-500" {{ old('jenis_kelamin', $dokter->jenis_kelamin) == 'perempuan' ? 'selected' : '' }}>Perempuan</option>
                                         </select>
                                     </div>
                                     @error('jenis_kelamin')
@@ -246,8 +240,8 @@
                                         <option value="inactive" data-icon="fas fa-times-circle text-red-500" {{ old('status', $dokter->status) == 'inactive' ? 'selected' : '' }}>Non-Aktif</option>
                                     </select>
                                     @error('status')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -279,20 +273,20 @@
                                 @enderror
                             </div>
                             
-                            <!-- No Telepon -->
+                            <!-- No HP -->
                             <div>
-                                <label for="no_telepon" class="block text-sm font-medium text-gray-700 mb-1">
-                                    No. Telepon <span class="text-red-500">*</span>
+                                <label for="no_hp" class="block text-sm font-medium text-gray-700 mb-1">
+                                    No. HP <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <i class="fas fa-phone text-gray-400"></i>
                                     </div>
-                                    <input type="text" id="no_telepon" name="no_telepon" value="{{ old('no_telepon', $dokter->no_telepon) }}" 
-                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('no_telepon') border-red-500 @enderror" 
-                                        placeholder="Masukkan nomor telepon">
+                                    <input type="text" id="no_hp" name="no_hp" value="{{ old('no_hp', $dokter->no_hp) }}" 
+                                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 @error('no_hp') border-red-500 @enderror" 
+                                        placeholder="Masukkan nomor HP" required>
                                 </div>
-                                @error('no_telepon')
+                                @error('no_hp')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -313,13 +307,13 @@
                                 @error('alamat')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
-                           </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
-                <div class="flex justify-end items-center space-x-3 mt-8 pt-5 border-t border-gray-200">
+                <div class="flex justify-end items-center space-x-3oru mt-8 pt-5 border-t border-gray-200">
                     <a href="{{ route('dokter.index') }}" class="inline-flex items-center px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors focus:ring-4 focus:ring-gray-200">
                         <i class="fas fa-times mr-2"></i>
                         Batal

@@ -26,37 +26,30 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+        // Validasi input dari form
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
         ]);
 
-        $remember = $request->has('remember');
+        // Data kredensial untuk autentikasi
+        $credentials = $request->only('email', 'password');
 
-        // Check if user exists and is active
-        $user = User::where('email', $request->email)->first();
-        
-        if ($user && !$user->is_active) {
-            return back()->withErrors([
-                'email' => 'Akun anda tidak aktif.',
-            ])->onlyInput('email');
-        }
-
-        if (Auth::attempt($credentials, $remember)) {
+        // Coba autentikasi pengguna
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
+            // Set Admin session key
+            $request->session()->put('session_key', config('session.cookie'));
+            // Regenerasi session untuk keamanan
             $request->session()->regenerate();
 
-            // Update last login
-            $user->update([
-                'last_login_at' => now(),
-                'last_login_ip' => $request->ip()
-            ]);
-
-            return redirect()->intended('dashboard');
+            // Redirect ke halaman setelah login berhasil (misalnya dashboard)
+            return redirect()->intended('dashboard'); 
         }
 
+        // Jika login gagal, kembali ke form dengan pesan error
         return back()->withErrors([
-            'email' => 'Data yang dimasukkan tidak sesuai dengan catatan kami.',
-        ])->onlyInput('email');
+            'email' => 'Email atau kata sandi salah.',
+        ])->withInput($request->except('password'));
     }
 
     /**

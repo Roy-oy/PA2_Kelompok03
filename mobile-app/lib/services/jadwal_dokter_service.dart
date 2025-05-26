@@ -33,9 +33,13 @@ class JadwalDokterService {
           final List<dynamic> jadwalList = jsonResponse['data'];
           print('Found ${jadwalList.length} doctor schedules');
 
-          final schedules = jadwalList
-              .map((item) => JadwalDokterModel.fromJson(item))
-              .toList();
+          final schedules = jadwalList.map((item) {
+            // Log foto_profil for debugging
+            if (item['foto_profil'] == null || item['foto_profil'].isEmpty) {
+              print('Invalid foto_profil for schedule ID ${item['id']}');
+            }
+            return JadwalDokterModel.fromJson(item);
+          }).toList();
 
           print('Successfully parsed doctor schedules');
           return schedules;
@@ -74,6 +78,10 @@ class JadwalDokterService {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         
         if (jsonResponse['data'] != null) {
+          // Log foto_profil for debugging
+          if (jsonResponse['data']['foto_profil'] == null || jsonResponse['data']['foto_profil'].isEmpty) {
+            print('Invalid foto_profil for schedule ID $jadwalId');
+          }
           return JadwalDokterModel.fromJson(jsonResponse['data']);
         }
         throw Exception('Detail jadwal dokter tidak ditemukan');

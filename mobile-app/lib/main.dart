@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const MainLayout(),
         '/register': (context) => RegisterScreen(onRegisterSuccess: () {
-              Navigator.pushReplacementNamed(context, '/home');
+              Navigator.pushReplacementNamed(context, '/login');
             }),
         '/login': (context) => LoginScreen(onLoginSuccess: () {
               Navigator.pushReplacementNamed(context, '/home');

@@ -4,15 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Doctor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
 class DoctorController extends Controller
 {
-    /**
-     * Menampilkan daftar semua dokter.
-     */
+    
     public function index()
     {
         $doctors = Doctor::latest()->paginate(10);
@@ -35,13 +32,13 @@ class DoctorController extends Controller
         // Validasi input
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
-            'spesialisasi' => 'required|string|max:255',
+            'spesialisasi' => 'required|in:umum,gigi',
             'email' => 'required|email|unique:doctors,email',
-            'no_telepon' => 'nullable|string|max:20',
-            'no_str' => 'required|string|unique:doctors,no_str',
-            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
-            'tanggal_lahir' => 'required|date',
-            'alamat' => 'nullable|string',
+            'no_hp' => 'required|string|max:15|unique:doctors,no_hp',
+            'no_str' => 'required|string|size:12|unique:doctors,no_str',
+            'jenis_kelamin' => 'required|in:laki-laki,perempuan',
+            'tanggal_lahir' => 'required|date|before:today',
+            'alamat' => 'required|string',
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|in:active,inactive',
         ]);
@@ -57,7 +54,7 @@ class DoctorController extends Controller
         $doctor->nama = $request->nama;
         $doctor->spesialisasi = $request->spesialisasi;
         $doctor->email = $request->email;
-        $doctor->no_telepon = $request->no_telepon;
+        $doctor->no_hp = $request->no_hp;
         $doctor->no_str = $request->no_str;
         $doctor->jenis_kelamin = $request->jenis_kelamin;
         $doctor->tanggal_lahir = $request->tanggal_lahir;
@@ -68,13 +65,10 @@ class DoctorController extends Controller
         if ($request->hasFile('foto_profil')) {
             $filename = time() . '_' . $request->file('foto_profil')->getClientOriginalName();
             $path = $request->file('foto_profil')->storeAs('doctors', $filename, 'public');
-            Log::info('Storing photo: ' . $path);
-            Log::info('File exists: ' . (Storage::disk('public')->exists($path) ? 'Yes' : 'No'));
-            Log::info('Full path: ' . Storage::disk('public')->path($path));
             $doctor->foto_profil = $path;
         }
 
-        $doctor->save(); // Simpan ke database
+        $doctor->save();
 
         return redirect()->route('dokter.index')
             ->with('success', 'Data dokter berhasil ditambahkan.');
@@ -104,15 +98,15 @@ class DoctorController extends Controller
         // Validasi input
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
-            'spesialisasi' => 'required|string|max:255',
+            'spesialisasi' => 'required|in:umum,gigi',
             'email' => 'required|email|unique:doctors,email,' . $dokter->id,
-            'no_telepon' => 'nullable|string|max:20',
-            'no_str' => 'required|string|unique:doctors,no_str,' . $dokter->id,
-            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
-            'tanggal_lahir' => 'required|date',
-            'alamat' => 'nullable|string',
+            'no_hp' => 'required|string|max:15|unique:doctors,no_hp,' . $dokter->id,
+            'no_str' => 'required|string|size:12|unique:doctors,no_str,' . $dokter->id,
+            'jenis_kelamin' => 'required|in:laki-laki,perempuan',
+            'tanggal_lahir' => 'required|date|before:today',
+            'alamat' => 'required|string',
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|in:active,inactive',  
+            'status' => 'required|in:active,inactive',
         ]);
 
         if ($validator->fails()) {
@@ -125,7 +119,7 @@ class DoctorController extends Controller
         $dokter->nama = $request->nama;
         $dokter->spesialisasi = $request->spesialisasi;
         $dokter->email = $request->email;
-        $dokter->no_telepon = $request->no_telepon;
+        $dokter->no_hp = $request->no_hp;
         $dokter->no_str = $request->no_str;
         $dokter->jenis_kelamin = $request->jenis_kelamin;
         $dokter->tanggal_lahir = $request->tanggal_lahir;
@@ -136,20 +130,15 @@ class DoctorController extends Controller
         if ($request->hasFile('foto_profil')) {
             // Hapus foto lama jika ada
             if ($dokter->foto_profil) {
-                Log::info('Deleting old photo: ' . $dokter->foto_profil);
-                Log::info('Old file exists: ' . (Storage::disk('public')->exists($dokter->foto_profil) ? 'Yes' : 'No'));
                 Storage::disk('public')->delete($dokter->foto_profil);
             }
             
             $filename = time() . '_' . $request->file('foto_profil')->getClientOriginalName();
             $path = $request->file('foto_profil')->storeAs('doctors', $filename, 'public');
-            Log::info('Storing new photo: ' . $path);
-            Log::info('File exists: ' . (Storage::disk('public')->exists($path) ? 'Yes' : 'No'));
-            Log::info('Full path: ' . Storage::disk('public')->path($path));
             $dokter->foto_profil = $path;
         }
 
-        $dokter->save(); // Simpan perubahan ke database
+        $dokter->save();
 
         return redirect()->route('dokter.index')
             ->with('success', 'Data dokter berhasil diperbarui.');
@@ -158,10 +147,14 @@ class DoctorController extends Controller
     /**
      * Menghapus dokter dari database.
      */
-    public function destroy($id)
+    public function destroy(Doctor $dokter)
     {
-        $doctors = Doctor::findOrFail($id);
-        $doctors->delete();
+        // Hapus foto profil jika ada
+        if ($dokter->foto_profil) {
+            Storage::disk('public')->delete($dokter->foto_profil);
+        }
+
+        $dokter->delete();
 
         return redirect()->route('dokter.index')
             ->with('success', 'Data dokter berhasil dihapus.');

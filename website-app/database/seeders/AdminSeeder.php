@@ -14,22 +14,16 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create a single admin account
-        $user = User::create([
-            'name' => 'Administrator',
-            'email' => 'admin@puskesmas.com',
-            'password' => Hash::make('admin123'),
-            'user_type' => 'admin',
-            'phone' => '08123456789',
-            'position' => 'Kepala Puskesmas',
-            'email_verified_at' => now(),
-        ]);
-
-        // Create the admin profile connected to the user
-        Admin::create([
-            'user_id' => $user->id,
-            'department' => 'Management',
-            'access_permissions' => 'all',
-        ]);
+        $admins = [
+            [
+                'name' => 'Admin Puskesmas Siborong borong',
+                'email' => 'admin@puskesmas.com',
+                'password' => Hash::make('admin123'),
+                'email_verified_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
+            ];
+            User::insert($admins);
     }
 } 

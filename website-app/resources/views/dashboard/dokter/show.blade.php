@@ -50,12 +50,12 @@
                 <div class="p-6">
                     <div class="flex flex-col items-center">
                         @if($dokter->foto_profil)
-                            <div class="h-96 w-full overflow-hidden border border-gray-200">
+                            <div class="h-48 w-full overflow-hidden border border-gray-200">
                                 <img src="{{ asset('storage/' . $dokter->foto_profil) }}" alt="Foto {{ $dokter->nama }}" class="h-full w-full object-contain">
                             </div>
                         @else
-                            <div class="h-96 w-full bg-gray-100 flex items-center justify-center border border-gray-200">
-                                <i class="fas {{ $dokter->jenis_kelamin == 'Laki-laki' ? 'fa-male' : 'fa-female' }} text-6xl text-gray-400"></i>
+                            <div class="h-48 w-full bg-gray-100 flex items-center justify-center border border-gray-200">
+                                <i class="fas {{ $dokter->jenis_kelamin == 'laki-laki' ? 'fa-male' : 'fa-female' }} text-6xl text-gray-400"></i>
                             </div>
                         @endif
                     </div>
@@ -69,10 +69,10 @@
                 </div>
                 <div class="p-6">
                     <div class="space-y-4">
-                        @if($dokter->no_telepon)
+                        @if($dokter->no_hp)
                         <div class="flex items-center">
                             <i class="fas fa-phone text-gray-400 w-5"></i>
-                            <a href="tel:{{ $dokter->no_telepon }}" class="text-gray-600 hover:text-gray-900 ml-3">{{ $dokter->no_telepon }}</a>
+                            <a href="tel:{{ $dokter->no_hp }}" class="text-gray-600 hover:text-gray-900 ml-3">{{ $dokter->no_hp }}</a>
                         </div>
                         @endif
                         <div class="flex items-center">
@@ -105,7 +105,7 @@
                         </div>
                         <div>
                             <h4 class="text-sm font-medium text-gray-500 uppercase mb-2">Spesialisasi</h4>
-                            <p class="text-gray-900 font-semibold text-base">{{ $dokter->spesialisasi }}</p>
+                            <p class="text-gray-900 font-semibold text-base">{{ $dokter->spesialisasi == 'umum' ? 'Umum' : 'Gigi' }}</p>
                         </div>
                         <div>
                             <h4 class="text-sm font-medium text-gray-500 uppercase mb-2">Nomor STR</h4>
@@ -113,19 +113,11 @@
                         </div>
                         <div>
                             <h4 class="text-sm font-medium text-gray-500 uppercase mb-2">Jenis Kelamin</h4>
-                            <p class="text-gray-900 font-semibold text-base">{{ $dokter->jenis_kelamin }}</p>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-500 uppercase mb-2">Status Akun</h4>
-                            <p class="text-gray-900 font-semibold text-base">{{ $dokter->user ? 'Terdaftar' : 'Belum memiliki akun' }}</p>
+                            <p class="text-gray-900 font-semibold text-base">{{ $dokter->jenis_kelamin == 'laki-laki' ? 'Laki-laki' : 'Perempuan' }}</p>
                         </div>
                         <div>
                             <h4 class="text-sm font-medium text-gray-500 uppercase mb-2">Tanggal Lahir</h4>
                             <p class="text-gray-900 font-semibold text-base">{{ $dokter->tanggal_lahir->format('d F Y') }}</p>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-500 uppercase mb-2">Umur</h4>
-                            <p class="text-gray-900 font-semibold text-base">{{ $dokter->umur }} tahun</p>
                         </div>
                         <div>
                             <h4 class="text-sm font-medium text-gray-500 uppercase mb-2">Terdaftar Sejak</h4>
@@ -186,7 +178,7 @@
         const deleteButton = document.getElementById('delete-button');
         
         deleteButton.addEventListener('click', function() {
-            modal.classList.remove('hidden');
+            modal.class\    (\nmodal.classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
         });
         
@@ -199,5 +191,4 @@
         modalBackdrop.addEventListener('click', closeModal);
     });
 </script>
-@endpush 
-        
+@endpush

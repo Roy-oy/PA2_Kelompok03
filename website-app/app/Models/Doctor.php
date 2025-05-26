@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Sanctum\HasApiTokens;
 
 class Doctor extends Model
 {
-    use HasFactory, HasApiTokens;
+    use HasFactory;
 
     // Nama tabel yang digunakan
     protected $table = 'doctors';
@@ -18,19 +17,21 @@ class Doctor extends Model
         'nama',
         'spesialisasi',
         'email',
-        'no_telepon',
+        'no_hp',
         'no_str',
         'jenis_kelamin',
         'tanggal_lahir',
         'alamat',
         'foto_profil',
-        'status'    
+        'status'
     ];
 
     // Format data otomatis
     protected $casts = [
         'tanggal_lahir' => 'date',
         'status' => 'string',
+        'spesialisasi' => 'string',
+        'jenis_kelamin' => 'string',
     ];
 
     // Accessor untuk menghitung umur berdasarkan tanggal lahir
@@ -49,19 +50,13 @@ class Doctor extends Model
         return $this->hasMany(DoctorSchedule::class, 'doctor_id');
     }
     
-    // 2. Relasi dengan rekam medis pasien (One-to-Many)
+    // Relasi dengan rekam medis pasien (One-to-Many)
     public function medicalRecords()
     {
         return $this->hasMany(MedicalRecord::class, 'doctor_id');
     }
-
-    // 3. Relasi dengan janji temu pasien (One-to-Many)
-    public function appointments()
-    {
-        return $this->hasMany(Appointment::class, 'doctor_id');
-    }
-
-    // 5. Relasi dengan feedback pasien (One-to-Many)
+    
+    // Relasi dengan feedback pasien (One-to-Many)
     public function feedbacks()
     {
         return $this->hasMany(Feedback::class, 'doctor_id');

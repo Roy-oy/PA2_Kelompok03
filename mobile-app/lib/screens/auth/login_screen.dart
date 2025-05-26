@@ -209,8 +209,9 @@ class _LoginScreenState extends State<LoginScreen>
                                 if (value == null || value.isEmpty) {
                                   return 'Email tidak boleh kosong';
                                 }
-                                if (!value.endsWith('@gmail.com')) {
-                                  return 'Email harus menggunakan @gmail.com';
+                                if (!value.endsWith('@gmail.com') &&
+                                    !value.endsWith('@yahoo.com')) {
+                                  return 'Email harus menggunakan @gmail.com atau @yahoo.com';
                                 }
                                 return null;
                               },

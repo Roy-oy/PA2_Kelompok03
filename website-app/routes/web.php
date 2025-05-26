@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AntrianController;
+use App\Http\Controllers\AppUserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BeritaController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\KategoriBeritaController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\PendaftaranController;
 
 // Authentication Routes
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
@@ -39,17 +41,19 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('kategori_berita', KategoriBeritaController::class);
 
-    Route::resource('antrian', AntrianController::class);
 
     Route::resource('faq', FaqController::class);
 
-    // App Users Management
-    Route::get('/app-users', [App\Http\Controllers\AppUserController::class, 'index'])->name('app-users.index');
-    Route::get('/app-users/create', [App\Http\Controllers\AppUserController::class, 'create'])->name('app-users.create');
-    Route::post('/app-users', [App\Http\Controllers\AppUserController::class, 'store'])->name('app-users.store');
-    Route::get('/app-users/{id}', [App\Http\Controllers\AppUserController::class, 'show'])->name('app-users.show');
-    Route::get('/app-users/{id}/edit', [App\Http\Controllers\AppUserController::class, 'edit'])->name('app-users.edit');
-    Route::put('/app-users/{id}', [App\Http\Controllers\AppUserController::class, 'update'])->name('app-users.update');
-    Route::delete('/app-users/{id}', [App\Http\Controllers\AppUserController::class, 'destroy'])->name('app-users.destroy');
-    Route::patch('/app-users/{id}/toggle-active', [App\Http\Controllers\AppUserController::class, 'toggleActive'])->name('app-users.toggle-active');
+    Route::resource('app-users', AppUserController::class)->only(['index', 'create', 'store', 'destroy']);
+
+    Route::get('/pendaftaran', [PendaftaranController::class, 'index'])->name('pendaftaran.index');
+    Route::post('/pendaftaran', [PendaftaranController::class, 'store'])->name('pendaftaran.store');
+    Route::get('/pendaftaran/{pendaftaran}/edit', [PendaftaranController::class, 'edit'])->name('pendaftaran.edit');
+    Route::put('/pendaftaran/{pendaftaran}', [PendaftaranController::class, 'update'])->name('pendaftaran.update');
+    
+    Route::get('/antrian', [AntrianController::class, 'index'])->name('antrian.index');
+    Route::put('/antrian/{antrian}', [AntrianController::class, 'update'])->name('antrian.update');
+    Route::delete('/antrian/{antrian}', [AntrianController::class, 'destroy'])->name('antrian.destroy');
+    Route::get('/pendaftaran/create', [PendaftaranController::class, 'create'])->name('pendaftaran.create');
+
 });

@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('app_users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            // Add any app_user-specific fields here
-            $table->string('device_token')->nullable();
-            $table->timestamp('last_app_activity')->nullable();
-            $table->string('app_version')->nullable();
-            $table->boolean('notifications_enabled')->default(true);
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('tanggal_lahir');
+            $table->string('alamat');
+            $table->string('no_hp')->unique();
+            $table->enum('jenis_kelamin', ['laki-laki', 'perempuan']);
             $table->timestamps();
         });
     }

@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Carbon\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 
-class Pasien extends Authenticatable
+class Pasien extends Model
 {
     use HasFactory, SoftDeletes, HasApiTokens;
 
@@ -20,43 +20,21 @@ class Pasien extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_id',
+        'app_user_id',
         'no_rm',
+        'nik',
+        'no_kk',
         'nama',
         'jenis_kelamin',
         'tanggal_lahir',
         'tempat_lahir',
         'alamat',
-        'no_telepon',
+        'no_hp',
         'pekerjaan',
         'no_bpjs',
         'golongan_darah',
-        'rhesus',
-        'status_perkawinan',
-        'agama',
-        'pendidikan',
-        'tinggi_badan',
-        'berat_badan',
-        'imt',
-        'tekanan_darah',
-        'status_bpjs',
-        'kelas_rawat',
-        'masa_berlaku_bpjs',
         'riwayat_alergi',
         'riwayat_penyakit',
-        'nik',
-        'email',
-        'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
     ];
 
     /**
@@ -65,25 +43,27 @@ class Pasien extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
+        'jenis_kelamin' => 'string',
         'tanggal_lahir' => 'date',
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'golongan_darah' => 'string',
     ];
 
     /**
-     * Get the formatted date of birth.
+     * Get the formatted age of the patient.
+     *
+     * @return string
      */
     public function getUmurAttribute()
     {
-        return $this->tanggal_lahir->age . ' tahun';
+        return Carbon::parse($this->tanggal_lahir)->age . ' tahun';
     }
-    
+
     /**
-     * Get the user associated with the patient.
+     * Get the app user associated with the patient.
      */
-    public function user()
+    public function appUser()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(AppUser::class, 'app_user_id');
     }
 
     /**
@@ -92,16 +72,11 @@ class Pasien extends Authenticatable
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($pasien) {
-            $latest = static::latest()->first();
-            
-            if (!$latest) {
-                // Jika belum ada data, mulai dari RM00001
-                $pasien->no_rm = 'RM0001';
-            } else {
-                // Ambil angka dari no_rm terakhir dan tambahkan 1
-                $number = intval(substr($latest->no_rm, 2)) + 1;
+            if (!$pasien->no_rm) {
+                $latest = static::withTrashed()->latest()->first();
+                $number = $latest ? (int) substr($latest->no_rm, 2) + 1 : 1;
                 $pasien->no_rm = 'RM' . str_pad($number, 4, '0', STR_PAD_LEFT);
             }
         });
