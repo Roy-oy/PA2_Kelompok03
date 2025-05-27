@@ -22,7 +22,7 @@ return new class extends Migration
             $table->date('tanggal_lahir');
             $table->string('tempat_lahir');
             $table->string('alamat');
-            $table->string('no_hp', 13)->unique()->nullable();
+            $table->string('no_hp', 13)->nullable();
             $table->string('pekerjaan')->nullable();
             $table->string('no_bpjs', 13)->unique()->nullable();
             $table->enum('golongan_darah', ['A', 'B', 'AB', 'O']);

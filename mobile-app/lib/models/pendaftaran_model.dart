@@ -84,6 +84,18 @@ class PendaftaranModel {
     return DateFormat('dd/MM/yyyy').format(tanggalDaftar!);
   }
 
+  String getFormattedNoAntrian() {
+    return antrian?.noAntrian ?? '-';
+  }
+
+  String getFormattedClusterNama() {
+    return cluster?.nama ?? '-';
+  }
+
+  String getFormattedPasienNama() {
+    return pasien?.nama ?? '-';
+  }
+
   PendaftaranModel copyWith({
     int? id,
     int? pasienId,
@@ -203,7 +215,7 @@ class ClusterModel {
 
   factory ClusterModel.fromJson(Map<String, dynamic> json) {
     return ClusterModel(
-      id: json['id'] is String ? int.parse(json['id']) : json['id'],
+      id: json['id'],
       nama: json['nama'],
     );
   }

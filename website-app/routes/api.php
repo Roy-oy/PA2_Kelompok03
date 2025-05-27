@@ -40,14 +40,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/register-as-patient', [AuthApiController::class, 'registerAsPatient']);
 
         // Cluster routes
+    Route::get('/pendaftarans', [PendaftaranApiController::class, 'index']);
     Route::get('/clusters', [PendaftaranApiController::class, 'getClusters']);
-
-    // Pendaftaran routes
-    Route::post('/', [PendaftaranApiController::class, 'store']);
-    Route::get('/{id}', [PendaftaranApiController::class, 'show']);
-    Route::put('/{id}', [PendaftaranApiController::class, 'update']);
-    Route::delete('/{id}', [PendaftaranApiController::class, 'destroy']);
-    Route::get('/', [PendaftaranApiController::class, 'index']);
+    Route::post('/pendaftarans', [PendaftaranApiController::class, 'store']);
+    Route::get('/pendaftarans/{id}', [PendaftaranApiController::class, 'show']);
+    Route::get('/pendaftarans/by-nik/{nik}', [PendaftaranApiController::class, 'showByNik']);
+    Route::put('/pendaftarans/{pendaftaran}', [PendaftaranApiController::class, 'update']);
+    Route::delete('/pendaftarans/{id}', [PendaftaranApiController::class, 'destroy']);
 
     // Pasien routes
     Route::get('/pasien', [PasienApiController::class, 'index']);

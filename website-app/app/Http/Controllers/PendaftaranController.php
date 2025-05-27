@@ -28,6 +28,14 @@ class PendaftaranController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
+        // Ensure the latest antrian status is reflected
+        foreach ($pendaftarans as $pendaftaran) {
+            if ($pendaftaran->antrian) {
+                $pendaftaran->status = $pendaftaran->antrian->status;
+                $pendaftaran->save();
+            }
+        }
+
         return view('dashboard.pendaftaran.index', compact('pendaftarans', 'date'));
     }
 
@@ -170,7 +178,7 @@ class PendaftaranController extends Controller
         }
 
         $clusters = Cluster::all();
-        $pendaftaran->load('pasien');
+        $pendaftaran->load('pasien', 'antrian');
         return view('dashboard.pendaftaran.edit', compact('pendaftaran', 'clusters'));
     }
 
@@ -272,12 +280,11 @@ class PendaftaranController extends Controller
                         'cluster_id' => $pendaftaran->cluster_id,
                         'no_antrian' => Antrian::generateNoAntrian($pendaftaran->tanggal_daftar),
                         'tanggal' => $pendaftaran->tanggal_daftar,
-                        'status' => StatusAntrian::BELUM_DIPANGGIL,
+                        'status' => $pendaftaran->status,
                     ]);
-                    $pendaftaran->update(['status' => StatusAntrian::BELUM_DIPANGGIL]);
                 }
 
-                return redirect()->route('pendaftaran.index')->with('success', 'Pendaftaran berhasil diperbarui. Antrian nomor ' . $antrian->no_antrian . ' tetap.');
+                return redirect()->route('pendaftaran.index')->with('success', 'Pendaftaran berhasil diperbarui. Antrian nomor ' . ($antrian ? $antrian->no_antrian : 'tidak ditemukan') . ' tetap.');
             });
         } catch (\Exception $e) {
             Log::error('Pendaftaran update failed: ' . $e->getMessage());

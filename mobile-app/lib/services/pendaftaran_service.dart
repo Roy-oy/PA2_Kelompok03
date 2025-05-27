@@ -7,7 +7,6 @@ import 'package:mobile_puskesmas/config/api_config.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
 
 class PendaftaranService {
-  // Singleton pattern
   static final PendaftaranService _instance = PendaftaranService._internal();
 
   factory PendaftaranService() => _instance;
@@ -99,8 +98,9 @@ class PendaftaranService {
     }
   }
 
-  Future<PendaftaranModel> createPendaftaran({
+  Future<Map<String, dynamic>> createPendaftaran({
     required String nik,
+    String? noKk,
     required String nama,
     required String keluhan,
     required int clusterId,
@@ -113,7 +113,6 @@ class PendaftaranService {
     required String tempatLahir,
     required String alamat,
     required String noHp,
-    String? noKk,
     String? pekerjaan,
     String? noBpjs,
     required String golonganDarah,
@@ -147,7 +146,9 @@ class PendaftaranService {
         'golongan_darah': golonganDarah,
         'riwayat_alergi': riwayatAlergi,
         'riwayat_penyakit': riwayatPenyakit,
-      };
+      }..removeWhere((key, value) => value == null);
+
+      print('Sending data: $pendaftaranData');
 
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/pendaftarans'),
@@ -158,15 +159,24 @@ class PendaftaranService {
         body: jsonEncode(pendaftaranData),
       );
 
-      print('Response status: ${response.statusCode}');
+      print('Response status: ${response.statusCode}, Body: ${response.body}');
 
       if (response.statusCode == 201) {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
           print('Successfully created registration');
-          return PendaftaranModel.fromJson(jsonResponse['data']);
+          return jsonResponse['data'];
         }
         throw Exception(jsonResponse['message'] ?? 'Pendaftaran gagal');
+      } else if (response.statusCode == 422) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['errors'] != null) {
+          final String errorMessage = jsonResponse['errors'].entries
+              .map((e) => '${e.value.join(', ')}')
+              .join('\n');
+          throw Exception('Validasi gagal:\n$errorMessage');
+        }
+        throw Exception('Validasi gagal. Periksa kembali data Anda.');
       }
       throw Exception('Gagal membuat pendaftaran. Status: ${response.statusCode}');
     } on SocketException {
@@ -334,4 +344,6 @@ class PendaftaranService {
       throw Exception('Terjadi kesalahan: ${e.toString()}');
     }
   }
+
+  
 }

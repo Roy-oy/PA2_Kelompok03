@@ -16,37 +16,6 @@ use Illuminate\Support\Facades\Validator;
 class PendaftaranApiController extends Controller
 {
     /**
-     * Show the form data for creating a new registration.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function create()
-    {
-        try {
-            $clusters = Cluster::all();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data for creating registration retrieved successfully.',
-                'data' => [
-                    'clusters' => $clusters,
-                    'jenis_pasien_options' => ['baru', 'lama'],
-                    'jenis_pembayaran_options' => ['bpjs', 'umum'],
-                    'jenis_kelamin_options' => ['laki-laki', 'perempuan'],
-                    'golongan_darah_options' => ['A', 'B', 'AB', 'O'],
-                ],
-            ], 200);
-        } catch (\Exception $e) {
-            Log::error('Failed to retrieve create registration data: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve create registration data.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
      * Display a listing of registrations.
      *
      * @param Request $request
@@ -120,19 +89,19 @@ class PendaftaranApiController extends Controller
             'nama' => 'required|string|max:255',
             'keluhan' => 'required|string',
             'cluster_id' => 'required|exists:clusters,id',
-            'tanggal_daftar' => 'required|date',
+            'tanggal_daftar' => 'required|date|date_format:Y-m-d',
             'jenis_pasien' => 'required|in:baru,lama',
             'jenis_pembayaran' => 'required|in:bpjs,umum',
             'app_user_id' => 'nullable|exists:app_users,id',
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
-            'tanggal_lahir' => 'required|date|before:today',
+            'tanggal_lahir' => 'required|date|date_format:Y-m-d|before:today',
             'tempat_lahir' => 'required|string|max:255',
             'alamat' => 'required|string|max:255',
             'no_hp' => 'required|string|max:20',
             'no_kk' => 'nullable|string|size:16|regex:/^\d{16}$/',
             'pekerjaan' => 'nullable|string|max:255',
             'no_bpjs' => [
-                'required',
+                'required_if:jenis_pembayaran,bpjs',
                 'string',
                 'size:13',
                 'regex:/^\d{13}$/',
@@ -156,15 +125,18 @@ class PendaftaranApiController extends Controller
             'keluhan.required' => 'Keluhan wajib diisi.',
             'cluster_id.required' => 'Cluster wajib dipilih.',
             'tanggal_daftar.required' => 'Tanggal daftar wajib diisi.',
+            'tanggal_daftar.date_format' => 'Format tanggal daftar harus YYYY-MM-DD.',
             'jenis_pasien.required' => 'Jenis pasien wajib dipilih.',
             'jenis_pembayaran.required' => 'Jenis pembayaran wajib dipilih.',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
             'tanggal_lahir.required' => 'Tanggal lahir wajib diisi.',
+            'tanggal_lahir.date_format' => 'Format tanggal lahir harus YYYY-MM-DD.',
             'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini.',
             'tempat_lahir.required' => 'Tempat lahir wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
             'no_kk.size' => 'No. KK harus 16 digit angka.',
             'no_kk.regex' => 'No. KK harus berupa angka.',
+            'no_bpjs.required_if' => 'No. BPJS wajib diisi untuk pembayaran BPJS.',
             'no_bpjs.size' => 'No. BPJS harus 13 digit angka.',
             'no_bpjs.regex' => 'No. BPJS harus berupa angka.',
         ]);
@@ -234,7 +206,7 @@ class PendaftaranApiController extends Controller
                 $antrian = Antrian::create([
                     'pendaftaran_id' => $pendaftaran->id,
                     'cluster_id' => $pendaftaran->cluster_id,
-                    'no_antrian' => Antrian::generateNoAntrian($pendaftaran->tanggal_daftar),
+                    'no_antrian' => Antrian::generateNoAntrian($pendaftaran->tanggal_daftar, $pendaftaran->cluster_id),
                     'tanggal' => $pendaftaran->tanggal_daftar,
                     'status' => StatusAntrian::BELUM_DIPANGGIL,
                 ]);
@@ -254,7 +226,18 @@ class PendaftaranApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Pendaftaran berhasil. Antrian nomor ' . $pendaftaran->antrian->no_antrian . ' telah dibuat.',
-                'data' => $pendaftaran,
+                'data' => [
+                    'id' => $pendaftaran->id,
+                    'pasien' => [
+                        'nama' => $pendaftaran->pasien->nama,
+                    ],
+                    'cluster' => [
+                        'nama' => $pendaftaran->cluster->nama,
+                    ],
+                    'keluhan' => $pendaftaran->keluhan,
+                    'tanggal_daftar' => $pendaftaran->tanggal_daftar,
+                    'no_antrian' => $pendaftaran->antrian->no_antrian,
+                ],
             ], 201);
         } catch (\Exception $e) {
             Log::error('Registration creation failed: ' . $e->getMessage(), [
@@ -457,6 +440,50 @@ class PendaftaranApiController extends Controller
             ], 500);
         }
     }
+
+    public function showByNik($nik)
+{
+    $pasien = Pasien::where('nik', $nik)->first();
+
+    if (!$pasien) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Pasien dengan NIK ini tidak ditemukan.',
+        ], 404);
+    }
+
+    $pendaftaranTerakhir = Pendaftaran::where('pasien_id', $pasien->id)
+        ->with(['cluster', 'antrian'])
+        ->latest()
+        ->first();
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'pasien' => [
+                'id' => $pasien->id,
+                'nik' => $pasien->nik,
+                'nama' => $pasien->nama,
+                'jenis_kelamin' => $pasien->jenis_kelamin,
+                'tanggal_lahir' => $pasien->tanggal_lahir,
+                'tempat_lahir' => $pasien->tempat_lahir,
+                'alamat' => $pasien->alamat,
+                'no_hp' => $pasien->no_hp,
+                'pekerjaan' => $pasien->pekerjaan,
+                'no_bpjs' => $pasien->no_bpjs,
+                'golongan_darah' => $pasien->golongan_darah,
+                'riwayat_alergi' => $pasien->riwayat_alergi,
+                'riwayat_penyakit' => $pasien->riwayat_penyakit,
+            ],
+            'pendaftaran' => $pendaftaranTerakhir ? [
+                'id' => $pendaftaranTerakhir->id,
+                'keluhan' => $pendaftaranTerakhir->keluhan,
+                'cluster' => $pendaftaranTerakhir->cluster,
+                'antrian' => $pendaftaranTerakhir->antrian,
+            ] : null,
+        ],
+    ], 200);
+}
 
     /**
      * Remove the specified registration from storage.

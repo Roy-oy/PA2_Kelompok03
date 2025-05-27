@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_puskesmas/models/pendaftaran_model.dart';
+import 'package:mobile_puskesmas/screens/pendaftaran_success_screen.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
 import 'package:mobile_puskesmas/services/pendaftaran_service.dart';
 
@@ -57,38 +58,24 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     _loadUserData();
     _fetchClusters();
     _setupTextFieldListeners();
-    _tanggalDaftarController.text =
-        DateTime.now().toIso8601String().split('T')[0];
+    _tanggalDaftarController.text = DateTime.now().toIso8601String().split('T')[0];
     _selectedRegistrationDate = DateTime.now();
   }
 
   void _setupTextFieldListeners() {
-    _nikController.addListener(
-        () => _updateFieldStatus('nik', _nikController.text.isNotEmpty));
-    _noKkController.addListener(
-        () => _updateFieldStatus('noKk', _noKkController.text.isNotEmpty));
-    _namaController.addListener(
-        () => _updateFieldStatus('nama', _namaController.text.isNotEmpty));
-    _keluhanController.addListener(() =>
-        _updateFieldStatus('keluhan', _keluhanController.text.isNotEmpty));
-    _tempatLahirController.addListener(() => _updateFieldStatus(
-        'tempatLahir', _tempatLahirController.text.isNotEmpty));
-    _tanggalLahirController.addListener(() => _updateFieldStatus(
-        'tanggalLahir', _tanggalLahirController.text.isNotEmpty));
-    _tanggalDaftarController.addListener(() => _updateFieldStatus(
-        'tanggalDaftar', _tanggalDaftarController.text.isNotEmpty));
-    _alamatController.addListener(
-        () => _updateFieldStatus('alamat', _alamatController.text.isNotEmpty));
-    _noHpController.addListener(
-        () => _updateFieldStatus('noHp', _noHpController.text.isNotEmpty));
-    _pekerjaanController.addListener(() =>
-        _updateFieldStatus('pekerjaan', _pekerjaanController.text.isNotEmpty));
-    _noBpjsController.addListener(
-        () => _updateFieldStatus('noBpjs', _noBpjsController.text.isNotEmpty));
-    _riwayatAlergiController.addListener(() => _updateFieldStatus(
-        'riwayatAlergi', _riwayatAlergiController.text.isNotEmpty));
-    _riwayatPenyakitController.addListener(() => _updateFieldStatus(
-        'riwayatPenyakit', _riwayatPenyakitController.text.isNotEmpty));
+    _nikController.addListener(() => _updateFieldStatus('nik', _nikController.text.isNotEmpty));
+    _noKkController.addListener(() => _updateFieldStatus('noKk', _noKkController.text.isNotEmpty));
+    _namaController.addListener(() => _updateFieldStatus('nama', _namaController.text.isNotEmpty));
+    _keluhanController.addListener(() => _updateFieldStatus('keluhan', _keluhanController.text.isNotEmpty));
+    _tempatLahirController.addListener(() => _updateFieldStatus('tempatLahir', _tempatLahirController.text.isNotEmpty));
+    _tanggalLahirController.addListener(() => _updateFieldStatus('tanggalLahir', _tanggalLahirController.text.isNotEmpty));
+    _tanggalDaftarController.addListener(() => _updateFieldStatus('tanggalDaftar', _tanggalDaftarController.text.isNotEmpty));
+    _alamatController.addListener(() => _updateFieldStatus('alamat', _alamatController.text.isNotEmpty));
+    _noHpController.addListener(() => _updateFieldStatus('noHp', _noHpController.text.isNotEmpty));
+    _pekerjaanController.addListener(() => _updateFieldStatus('pekerjaan', _pekerjaanController.text.isNotEmpty));
+    _noBpjsController.addListener(() => _updateFieldStatus('noBpjs', _noBpjsController.text.isNotEmpty));
+    _riwayatAlergiController.addListener(() => _updateFieldStatus('riwayatAlergi', _riwayatAlergiController.text.isNotEmpty));
+    _riwayatPenyakitController.addListener(() => _updateFieldStatus('riwayatPenyakit', _riwayatPenyakitController.text.isNotEmpty));
   }
 
   void _updateFieldStatus(String fieldName, bool isFilled) {
@@ -109,16 +96,13 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
           _noHpController.text = user.noHp ?? '';
           _alamatController.text = user.alamat ?? '';
           _jenisKelamin = user.jenisKelamin;
-          _tanggalLahirController.text =
-              user.tanggalLahir?.toIso8601String().split('T')[0] ?? '';
+          _tanggalLahirController.text = user.tanggalLahir?.toIso8601String().split('T')[0] ?? '';
           _selectedBirthDate = user.tanggalLahir;
         });
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Gagal memuat data pengguna: $e'),
-            backgroundColor: Colors.red),
+        SnackBar(content: Text('Gagal memuat data pengguna: $e'), backgroundColor: Colors.red),
       );
     } finally {
       setState(() {
@@ -134,25 +118,21 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
         _clusterError = null;
       });
       final clusters = await PendaftaranService().getClusters();
-      print('Fetched clusters: ${clusters.map((c) => {
-            'id': c.id,
-            'nama': c.nama
-          }).toList()}'); // Debug log
+      print('Fetched clusters: ${clusters.map((c) => {'id': c.id, 'nama': c.nama}).toList()}');
       if (clusters.isNotEmpty) {
         setState(() {
           _clusters = clusters;
           if (_clusterId == null && clusters.isNotEmpty) {
-            _clusterId =
-                clusters.first.id.toString(); // Set default value if not set
+            _clusterId = clusters.first.id.toString();
           }
         });
       } else {
         setState(() {
-          _clusterError = 'No clusters available';
+          _clusterError = 'Tidak ada cluster yang tersedia';
         });
       }
     } catch (e) {
-      print('Error fetching clusters: $e'); // Debug log
+      print('Error fetching clusters: $e');
       setState(() {
         _clusterError = 'Gagal memuat cluster: $e';
       });
@@ -217,18 +197,41 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     }
     if (_clusterId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Cluster wajib dipilih'),
-            backgroundColor: Colors.red),
+        const SnackBar(content: Text('Cluster wajib dipilih'), backgroundColor: Colors.red),
       );
       return;
     }
+    if (_jenisPasien == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Jenis pasien wajib dipilih'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_jenisPembayaran == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Jenis pembayaran wajib dipilih'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_jenisKelamin == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Jenis kelamin wajib dipilih'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_golonganDarah == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Golongan darah wajib dipilih'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
     try {
       setState(() {
         _isLoading = true;
       });
       final user = await AuthService().getUserData();
-      final pendaftaran = await PendaftaranService().createPendaftaran(
+      final pendaftaranData = await PendaftaranService().createPendaftaran(
         nik: _nikController.text,
         noKk: _noKkController.text.isNotEmpty ? _noKkController.text : null,
         nama: _namaController.text,
@@ -243,32 +246,23 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
         tempatLahir: _tempatLahirController.text,
         alamat: _alamatController.text,
         noHp: _noHpController.text,
-        pekerjaan: _pekerjaanController.text.isNotEmpty
-            ? _pekerjaanController.text
-            : null,
-        noBpjs:
-            _noBpjsController.text.isNotEmpty ? _noBpjsController.text : null,
+        pekerjaan: _pekerjaanController.text.isNotEmpty ? _pekerjaanController.text : null,
+        noBpjs: _noBpjsController.text.isNotEmpty ? _noBpjsController.text : null,
         golonganDarah: _golonganDarah!,
-        riwayatAlergi: _riwayatAlergiController.text.isNotEmpty
-            ? _riwayatAlergiController.text
-            : null,
-        riwayatPenyakit: _riwayatPenyakitController.text.isNotEmpty
-            ? _riwayatPenyakitController.text
-            : null,
+        riwayatAlergi: _riwayatAlergiController.text.isNotEmpty ? _riwayatAlergiController.text : null,
+        riwayatPenyakit: _riwayatPenyakitController.text.isNotEmpty ? _riwayatPenyakitController.text : null,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Pendaftaran berhasil! Nomor antrian: ${pendaftaran.antrian?.noAntrian}'),
-          backgroundColor: Colors.green,
+
+      // Navigasi ke layar konfirmasi setelah pendaftaran berhasil
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PendaftaranSuccessScreen(pendaftaranData: pendaftaranData),
         ),
       );
-      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Terjadi kesalahan: $e'),
-            backgroundColor: Colors.red),
+        SnackBar(content: Text('Terjadi kesalahan: $e'), backgroundColor: Colors.red),
       );
     } finally {
       setState(() {
@@ -317,8 +311,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
         ),
       ),
       body: _isLoading || _isLoadingClusters
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF06489F)))
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF06489F)))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Form(
@@ -327,15 +320,13 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Registration Section
-                    _buildSectionTitle(
-                        'Data Pendaftaran', 'Lengkapi informasi pendaftaran'),
+                    _buildSectionTitle('Data Pendaftaran', 'Lengkapi informasi pendaftaran'),
                     _buildDropdownField(
                       label: 'Jenis Pasien',
                       value: _jenisPasien,
                       hint: 'Pilih jenis pasien',
                       items: _jenisPasienOptions.map((item) {
-                        return DropdownMenuItem<String>(
-                            value: item, child: Text(item));
+                        return DropdownMenuItem<String>(value: item, child: Text(item));
                       }).toList(),
                       icon: Iconsax.user,
                       onChanged: (value) {
@@ -365,8 +356,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                         padding: const EdgeInsets.only(bottom: 15),
                         child: Text(
                           _clusterError!,
-                          style:
-                              const TextStyle(color: Colors.red, fontSize: 14),
+                          style: const TextStyle(color: Colors.red, fontSize: 14),
                         ),
                       ),
                     _buildDropdownField(
@@ -405,8 +395,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       value: _jenisPembayaran,
                       hint: 'Pilih jenis pembayaran',
                       items: _jenisPembayaranOptions.map((item) {
-                        return DropdownMenuItem<String>(
-                            value: item, child: Text(item));
+                        return DropdownMenuItem<String>(value: item, child: Text(item));
                       }).toList(),
                       icon: Iconsax.money,
                       onChanged: (value) {
@@ -421,13 +410,10 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       hint: 'Masukkan nomor BPJS (13 digit)',
                       icon: Iconsax.card,
                       validator: (value) {
-                        if (_jenisPembayaran == 'bpjs' &&
-                            (value == null || value.isEmpty)) {
+                        if (_jenisPembayaran == 'bpjs' && (value == null || value.isEmpty)) {
                           return 'No. BPJS wajib diisi untuk pembayaran BPJS';
                         }
-                        if (value != null &&
-                            value.isNotEmpty &&
-                            !RegExp(r'^\d{13}$').hasMatch(value)) {
+                        if (value != null && value.isNotEmpty && !RegExp(r'^\d{13}$').hasMatch(value)) {
                           return 'No. BPJS harus 13 digit angka';
                         }
                         return null;
@@ -436,8 +422,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                     ),
 
                     // Identity Section
-                    _buildSectionTitle('Data Identitas Pasien',
-                        'Lengkapi informasi data diri'),
+                    _buildSectionTitle('Data Identitas Pasien', 'Lengkapi informasi data diri'),
                     _buildTextField(
                       controller: _nikController,
                       label: 'NIK',
@@ -460,9 +445,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       hint: 'Masukkan No. KK (16 digit)',
                       icon: Iconsax.card,
                       validator: (value) {
-                        if (value != null &&
-                            value.isNotEmpty &&
-                            !RegExp(r'^\d{16}$').hasMatch(value)) {
+                        if (value != null && value.isNotEmpty && !RegExp(r'^\d{16}$').hasMatch(value)) {
                           return 'No. KK harus 16 digit angka';
                         }
                         return null;
@@ -475,8 +458,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       hint: 'Masukkan nama lengkap',
                       icon: Iconsax.user,
                       validator: (value) {
-                        if (_jenisPasien == 'baru' &&
-                            (value == null || value.isEmpty)) {
+                        if (_jenisPasien == 'baru' && (value == null || value.isEmpty)) {
                           return 'Nama tidak boleh kosong untuk pasien baru';
                         }
                         return null;
@@ -489,17 +471,14 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       value: _jenisKelamin,
                       hint: 'Pilih jenis kelamin',
                       items: _jenisKelaminOptions.map((item) {
-                        return DropdownMenuItem<String>(
-                            value: item, child: Text(item));
+                        return DropdownMenuItem<String>(value: item, child: Text(item));
                       }).toList(),
                       icon: Iconsax.woman,
-                      onChanged: _jenisPasien == 'lama'
-                          ? null
-                          : (value) {
-                              setState(() {
-                                _jenisKelamin = value;
-                              });
-                            },
+                      onChanged: _jenisPasien == 'lama' ? null : (value) {
+                        setState(() {
+                          _jenisKelamin = value;
+                        });
+                      },
                     ),
                     _buildTextField(
                       controller: _tempatLahirController,
@@ -507,8 +486,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       hint: 'Masukkan tempat lahir',
                       icon: Iconsax.location,
                       validator: (value) {
-                        if (_jenisPasien == 'baru' &&
-                            (value == null || value.isEmpty)) {
+                        if (_jenisPasien == 'baru' && (value == null || value.isEmpty)) {
                           return 'Tempat lahir tidak boleh kosong untuk pasien baru';
                         }
                         return null;
@@ -521,12 +499,9 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       label: 'Tanggal Lahir',
                       hint: 'YYYY-MM-DD',
                       icon: Iconsax.calendar,
-                      onTap: _jenisPasien == 'lama'
-                          ? null
-                          : () => _selectBirthDate(context),
+                      onTap: _jenisPasien == 'lama' ? null : () => _selectBirthDate(context),
                       validator: (value) {
-                        if (_jenisPasien == 'baru' &&
-                            (value == null || value.isEmpty)) {
+                        if (_jenisPasien == 'baru' && (value == null || value.isEmpty)) {
                           return 'Tanggal lahir tidak boleh kosong untuk pasien baru';
                         }
                         return null;
@@ -539,8 +514,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       hint: 'Masukkan alamat lengkap',
                       icon: Iconsax.location,
                       validator: (value) {
-                        if (_jenisPasien == 'baru' &&
-                            (value == null || value.isEmpty)) {
+                        if (_jenisPasien == 'baru' && (value == null || value.isEmpty)) {
                           return 'Alamat tidak boleh kosong untuk pasien baru';
                         }
                         return null;
@@ -571,15 +545,13 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                     ),
 
                     // Medical Section
-                    _buildSectionTitle(
-                        'Informasi Medis', 'Lengkapi informasi kesehatan'),
+                    _buildSectionTitle('Informasi Medis', 'Lengkapi informasi kesehatan'),
                     _buildDropdownField(
                       label: 'Golongan Darah',
                       value: _golonganDarah,
                       hint: 'Pilih golongan darah',
                       items: _golonganDarahOptions.map((item) {
-                        return DropdownMenuItem<String>(
-                            value: item, child: Text(item));
+                        return DropdownMenuItem<String>(value: item, child: Text(item));
                       }).toList(),
                       icon: Iconsax.heart,
                       onChanged: (value) {
@@ -612,22 +584,19 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                           backgroundColor: const Color(0xFF06489F),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           elevation: 2,
                         ),
                         child: _isLoading
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2),
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                               )
                             : const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Iconsax.tick_circle,
-                                      size: 20, color: Colors.white),
+                                  Icon(Iconsax.tick_circle, size: 20, color: Colors.white),
                                   SizedBox(width: 10),
                                   Text(
                                     'DAFTAR PASIEN',
@@ -658,21 +627,15 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
         children: [
           Text(
             title,
-            style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF06489F)),
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF06489F)),
           ),
           const SizedBox(height: 3),
-          Text(subtitle,
-              style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+          Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
           const SizedBox(height: 4),
           Container(
             height: 2,
             width: 60,
-            decoration: BoxDecoration(
-                color: const Color(0xFF06489F),
-                borderRadius: BorderRadius.circular(2)),
+            decoration: BoxDecoration(color: const Color(0xFF06489F), borderRadius: BorderRadius.circular(2)),
           ),
         ],
       ),
@@ -688,19 +651,13 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     String? fieldName,
     bool enabled = true,
   }) {
-    bool isFilled = fieldName != null
-        ? _fieldFilled[fieldName] ?? false
-        : controller.text.isNotEmpty;
+    bool isFilled = fieldName != null ? _fieldFilled[fieldName] ?? false : controller.text.isNotEmpty;
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87)),
+          Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
           const SizedBox(height: 8),
           Stack(
             alignment: Alignment.centerRight,
@@ -708,17 +665,13 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
               TextFormField(
                 controller: controller,
                 enabled: enabled,
-                decoration: InputDecoration (
+                decoration: InputDecoration(
                   hintText: hint,
-                  hintStyle:
-                      TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                  prefixIcon:
-                      Icon(icon, color: const Color(0xFF06489F), size: 20),
+                  hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                  prefixIcon: Icon(icon, color: const Color(0xFF06489F), size: 20),
                   filled: true,
-                  fillColor:
-                      enabled ? Colors.grey.shade50 : Colors.grey.shade200,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  fillColor: enabled ? Colors.grey.shade50 : Colors.grey.shade200,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -754,11 +707,8 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                   child: Container(
                     width: 20,
                     height: 20,
-                    decoration: const BoxDecoration(
-                        color: Color(0xFF06489F), shape: BoxShape.circle),
-                    child: const Center(
-                        child:
-                            Icon(Icons.check, color: Colors.white, size: 12)),
+                    decoration: const BoxDecoration(color: Color(0xFF06489F), shape: BoxShape.circle),
+                    child: const Center(child: Icon(Icons.check, color: Colors.white, size: 12)),
                   ),
                 ),
             ],
@@ -782,11 +732,7 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87)),
+          Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
           const SizedBox(height: 8),
           Stack(
             alignment: Alignment.centerRight,
@@ -806,18 +752,12 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: value,
-                          hint: Text(hint ?? 'Pilih $label',
-                              style: TextStyle(
-                                  color: Colors.grey.shade500, fontSize: 13)),
+                          hint: Text(hint ?? 'Pilih $label', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
                           items: items,
                           onChanged: onChanged,
                           isExpanded: true,
-                          style: const TextStyle(
-                              fontSize: 13, color: Colors.black87),
-                          icon: isFilled
-                              ? const SizedBox.shrink()
-                              : const Icon(Icons.keyboard_arrow_down_rounded,
-                                  color: Color(0xFF06489F), size: 22),
+                          style: const TextStyle(fontSize: 13, color: Colors.black87),
+                          icon: isFilled ? const SizedBox.shrink() : const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF06489F), size: 22),
                         ),
                       ),
                     ),
@@ -830,11 +770,8 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                   child: Container(
                     width: 20,
                     height: 20,
-                    decoration: const BoxDecoration(
-                        color: Color(0xFF06489F), shape: BoxShape.circle),
-                    child: const Center(
-                        child:
-                            Icon(Icons.check, color: Colors.white, size: 12)),
+                    decoration: const BoxDecoration(color: Color(0xFF06489F), shape: BoxShape.circle),
+                    child: const Center(child: Icon(Icons.check, color: Colors.white, size: 12)),
                   ),
                 ),
             ],
@@ -853,19 +790,13 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
     String? Function(String?)? validator,
     String? fieldName,
   }) {
-    bool isFilled = fieldName != null
-        ? _fieldFilled[fieldName] ?? false
-        : controller.text.isNotEmpty;
+    bool isFilled = fieldName != null ? _fieldFilled[fieldName] ?? false : controller.text.isNotEmpty;
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87)),
+          Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
           const SizedBox(height: 8),
           Stack(
             alignment: Alignment.centerRight,
@@ -873,18 +804,14 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
               TextFormField(
                 controller: controller,
                 readOnly: true,
+                onTap: onTap,
                 decoration: InputDecoration(
                   hintText: hint,
-                  hintStyle:
-                      TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                  prefixIcon:
-                      Icon(icon, color: const Color(0xFF06489F), size: 20),
-                  suffixIcon: Icon(Icons.calendar_month_rounded,
-                      color: const Color(0xFF06489F), size: 20),
+                  hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                  prefixIcon: Icon(icon, color: const Color(0xFF06489F), size: 20),
                   filled: true,
                   fillColor: Colors.grey.shade50,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -897,13 +824,16 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: Color(0xFF06489F)),
                   ),
+                  disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(color: Colors.red.shade300),
                   ),
                 ),
                 style: const TextStyle(fontSize: 13),
-                onTap: onTap,
                 validator: validator,
               ),
               if (isFilled)
@@ -912,11 +842,8 @@ class _PatientFormScreenState extends State<PatientFormScreen> {
                   child: Container(
                     width: 20,
                     height: 20,
-                    decoration: const BoxDecoration(
-                        color: Color(0xFF06489F), shape: BoxShape.circle),
-                    child: const Center(
-                        child:
-                            Icon(Icons.check, color: Colors.white, size: 12)),
+                    decoration: const BoxDecoration(color: Color(0xFF06489F), shape: BoxShape.circle),
+                    child: const Center(child: Icon(Icons.check, color: Colors.white, size: 12)),
                   ),
                 ),
             ],
