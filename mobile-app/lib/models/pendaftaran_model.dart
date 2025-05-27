@@ -145,6 +145,7 @@ class PasienModel {
   final String? golonganDarah;
   final String? riwayatAlergi;
   final String? riwayatPenyakit;
+  final String? noRm;
 
   PasienModel({
     this.id,
@@ -162,6 +163,7 @@ class PasienModel {
     this.golonganDarah,
     this.riwayatAlergi,
     this.riwayatPenyakit,
+    this.noRm,
   });
 
   factory PasienModel.fromJson(Map<String, dynamic> json) {
@@ -183,6 +185,7 @@ class PasienModel {
       golonganDarah: json['golongan_darah'],
       riwayatAlergi: json['riwayat_alergi'],
       riwayatPenyakit: json['riwayat_penyakit'],
+      noRm: json['no_rm'],
     );
   }
 
@@ -203,6 +206,7 @@ class PasienModel {
       'golongan_darah': golonganDarah,
       'riwayat_alergi': riwayatAlergi,
       'riwayat_penyakit': riwayatPenyakit,
+      'no_rm': noRm,
     };
   }
 }

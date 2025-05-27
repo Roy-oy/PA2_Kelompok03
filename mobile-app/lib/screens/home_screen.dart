@@ -4,13 +4,10 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:mobile_puskesmas/screens/faskes_rujukan_screen.dart';
 import 'package:mobile_puskesmas/screens/feedback_1.dart';
 import 'package:mobile_puskesmas/screens/jadwal_dokter_screen.dart';
-import 'package:mobile_puskesmas/screens/medical_detail_screen.dart';
-import 'package:mobile_puskesmas/screens/medical_history_screen.dart';
+import 'package:mobile_puskesmas/screens/medical_record_screen.dart';
 import 'package:mobile_puskesmas/screens/pengumuman.dart';
-// import 'package:mobile_puskesmas/screens/patient_registration_screen.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
 import 'package:mobile_puskesmas/screens/patient_form_screen.dart';
-import 'package:mobile_puskesmas/services/pasien_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -21,44 +18,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  bool _isLoading = true;
-  List<Map<String, dynamic>> _medicalRecords = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadMedicalRecords();
-  }
-
-  Future<void> _loadMedicalRecords() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // Cek apakah pengguna sudah login dan merupakan pasien
-      final bool isLoggedIn = await AuthService().isLoggedIn();
-      final bool isPatient = await AuthService().isAppUser();
-
-      if (!isLoggedIn || !isPatient) {
-        setState(() {
-          _isLoading = false;
-          _medicalRecords = [];
-        });
-        return;
-      }
-
-      // Jika sudah login dan merupakan pasien, ambil data rekam medis
-
-    
-    } catch (e) {
-      print('Error loading medical records: $e');
-      setState(() {
-        _isLoading = false;
-        _medicalRecords = [];
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,16 +129,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               image: 'assets/images/rekam-medis-logo.png',
                               title: 'Rekam Medis',
                               color: const Color(0xFF06489F),
-                              onTap: () async {
+                              onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => MedicalHistoryScreen(
-                                      records: _medicalRecords,
-                                    ),
+                                    builder: (context) =>
+                                        const MedicalRecordScreen(records: [],),
                                   ),
-                                ).then((_) =>
-                                    _loadMedicalRecords()); // Refresh data ketika kembali
+                                );
                               },
                             ),
                             _buildMenuItem(
@@ -200,7 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               title: 'Feedback',
                               color: const Color(0xFF06489F),
                               onTap: () {
-                                // Pastikan untuk mengirimkan context yang valid
                                 _rujukan(context);
                               },
                             ),
@@ -209,7 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               title: 'Pengumuman',
                               color: const Color(0xFF06489F),
                               onTap: () {
-                                // Handle pengumuman tap
                                 _pengumuman(context);
                               },
                             ),
@@ -218,9 +173,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-
-                  // Riwayat berobat section
-                  _buildRiwayatBerobatSection(),
                 ],
               ),
             ),
@@ -363,317 +315,6 @@ class _HomeScreenState extends State<HomeScreen> {
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRiwayatBerobatSection() {
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    return Padding(
-      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Riwayat Berobat',
-                style: TextStyle(
-                  fontFamily: 'KohSantepheap',
-                  fontSize: MediaQuery.of(context).size.width * 0.045,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF06489F),
-                ),
-              ),
-              GestureDetector(
-                onTap: () async {
-                  final isLoggedIn = await AuthService().isLoggedIn();
-                  final isPatient = await AuthService().isAppUser();
-
-                  if (!isLoggedIn) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                            'Silakan login terlebih dahulu untuk melihat riwayat berobat'),
-                        backgroundColor: Colors.orange,
-                      ),
-                    );
-                    return;
-                  }
-
-                  if (!isPatient) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Anda belum terdaftar sebagai pasien'),
-                        backgroundColor: Colors.orange,
-                      ),
-                    );
-                    return;
-                  }
-
-                  // Refresh data rekam medis
-                  _loadMedicalRecords();
-                },
-                child: Icon(
-                  Icons.refresh,
-                  color: const Color(0xFF06489F),
-                  size: screenWidth * 0.05,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: MediaQuery.of(context).size.width * 0.02),
-
-          // Show loading indicator if loading
-          if (_isLoading)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: CircularProgressIndicator(
-                  color: Color(0xFF06489F),
-                ),
-              ),
-            )
-          // Show message if not logged in or no records and not loading
-          else if (_medicalRecords.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.history,
-                      size: screenWidth * 0.15,
-                      color: Colors.grey[400],
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Belum ada riwayat berobat',
-                      style: TextStyle(
-                        fontFamily: 'KohSantepheap',
-                        fontSize: screenWidth * 0.035,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final isLoggedIn = await AuthService().isLoggedIn();
-                        if (!isLoggedIn) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Silakan login terlebih dahulu untuk mendaftar berobat'),
-                              backgroundColor: Colors.orange,
-                            ),
-                          );
-                          return;
-                        }
-                        _handlePatientRegistration(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF06489F),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                      ),
-                      child: Text(
-                        'Daftar Berobat Sekarang',
-                        style: TextStyle(fontSize: screenWidth * 0.03),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          // Show records if available
-          else
-            Column(
-              children: [
-                // Tampilkan maksimal 2 rekam medis di halaman home
-                ..._medicalRecords
-                    .take(2)
-                    .map((record) => _buildRiwayatBerobatItem(record))
-                    .toList(),
-
-                if (_medicalRecords.length > 2)
-                  Align(
-                    alignment: Alignment.center,
-                    child: TextButton(
-                      onPressed: () {
-                        // Navigate to full medical history screen
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MedicalHistoryScreen(
-                              records: _medicalRecords,
-                            ),
-                          ),
-                        ).then((_) =>
-                            _loadMedicalRecords()); // Refresh data when returning
-                      },
-                      child: Text(
-                        'Lihat Semua',
-                        style: TextStyle(
-                          color: const Color(0xFF06489F),
-                          fontSize: MediaQuery.of(context).size.width * 0.035,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRiwayatBerobatItem(Map<String, dynamic> record) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    // Format tanggal dan waktu dari data API
-    String tanggal = record['tanggal'] ?? 'Tidak tersedia';
-    String waktu = record['waktu'] ?? 'Tidak tersedia';
-    String diagnosis = record['diagnosis'] ?? 'Tidak ada diagnosis';
-    String terapi = record['terapi'] ?? 'Tidak ada terapi';
-
-    return GestureDetector(
-      onTap: () {
-        // Navigasi ke detail rekam medis jika ada ID
-        if (record['id'] != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MedicalDetailScreen(recordId: record['id']),
-            ),
-          );
-        }
-      },
-      child: Container(
-        margin: EdgeInsets.only(bottom: screenWidth * 0.025),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 0,
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-          border: Border.all(color: Colors.grey.withOpacity(0.1), width: 1),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Left section - Hospital illustration
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
-              ),
-              child: Image.asset(
-                'assets/images/hospital-illustration.png',
-                width: screenWidth * 0.22,
-                height: screenWidth * 0.22,
-                fit: BoxFit.cover,
-              ),
-            ),
-
-            // Right section - Visit details
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(screenWidth * 0.03),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Date and time
-                    Text(
-                      '$tanggal, $waktu',
-                      style: TextStyle(
-                        fontFamily: 'KohSantepheap',
-                        fontWeight: FontWeight.bold,
-                        fontSize: screenWidth * 0.032,
-                        color: const Color(0xFF06489F),
-                      ),
-                    ),
-                    SizedBox(height: screenWidth * 0.02),
-
-                    // Diagnosis
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.medical_information_outlined,
-                          size: screenWidth * 0.04,
-                          color: Colors.grey[700],
-                        ),
-                        SizedBox(width: screenWidth * 0.01),
-                        Expanded(
-                          child: Text(
-                            diagnosis,
-                            style: TextStyle(
-                              fontFamily: 'KohSantepheap',
-                              fontSize: screenWidth * 0.03,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: screenWidth * 0.01),
-
-                    // Treatment
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.medication_outlined,
-                          size: screenWidth * 0.04,
-                          color: Colors.grey[700],
-                        ),
-                        SizedBox(width: screenWidth * 0.01),
-                        Expanded(
-                          child: Text(
-                            terapi,
-                            style: TextStyle(
-                              fontFamily: 'KohSantepheap',
-                              fontSize: screenWidth * 0.03,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // See more button
-            Padding(
-              padding: EdgeInsets.all(screenWidth * 0.03),
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: Text(
-                  'See More ...',
-                  style: TextStyle(
-                    fontFamily: 'KohSantepheap',
-                    fontSize: screenWidth * 0.026,
-                    color: Colors.grey[500],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
             ),
           ],
         ),

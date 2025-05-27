@@ -52,8 +52,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pasien/{pasien}', [PasienApiController::class, 'show']);
     Route::put('/pasien/{pasien}', [PasienApiController::class, 'update']);
 
-    Route::get('/pasien/medical-records', [MedicalRecordApiController::class, 'index']);
-    Route::get('/pasien/medical-records/{id}', [MedicalRecordApiController::class, 'show']);
+    Route::prefix('medical-records')->group(function () {
+    Route::get('/', [MedicalRecordApiController::class, 'index']);
+    Route::post('/', [MedicalRecordApiController::class, 'store']);
+    Route::get('/{id}', [MedicalRecordApiController::class, 'show']);
+    Route::put('/{id}', [MedicalRecordApiController::class, 'update']);
+    Route::delete('/{id}', [MedicalRecordApiController::class, 'destroy']);
+    Route::get('/{id}/pdf', [MedicalRecordApiController::class, 'pdf']);
+    Route::get('/current-antrian', [MedicalRecordApiController::class, 'getCurrentAntrian']);
+});
 
 });
 

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_puskesmas/models/pendaftaran_model.dart';
 import 'package:mobile_puskesmas/config/api_config.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
@@ -168,6 +167,9 @@ class PendaftaranService {
           return jsonResponse['data'];
         }
         throw Exception(jsonResponse['message'] ?? 'Pendaftaran gagal');
+      } else if (response.statusCode == 400) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        throw Exception(jsonResponse['message'] ?? 'Pendaftaran gagal');
       } else if (response.statusCode == 422) {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         if (jsonResponse['errors'] != null) {
@@ -229,7 +231,7 @@ class PendaftaranService {
     }
   }
 
-  Future<PendaftaranModel> updatePendaftaran({
+  Future<Map<String, dynamic>> updatePendaftaran({
     required int id,
     required String keluhan,
     required int clusterId,
@@ -289,9 +291,20 @@ class PendaftaranService {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
           print('Successfully updated registration');
-          return PendaftaranModel.fromJson(jsonResponse['data']);
+          return jsonResponse['data'];
         }
         throw Exception(jsonResponse['message'] ?? 'Pendaftaran gagal diperbarui');
+      } else if (response.statusCode == 403) {
+        throw Exception('Pendaftaran tidak dapat diedit karena status antrian bukan "Belum Dipanggil".');
+      } else if (response.statusCode == 422) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['errors'] != null) {
+          final String errorMessage = jsonResponse['errors'].entries
+              .map((e) => '${e.value.join(', ')}')
+              .join('\n');
+          throw Exception('Validasi gagal:\n$errorMessage');
+        }
+        throw Exception('Validasi gagal. Periksa kembali data Anda.');
       }
       throw Exception('Gagal memperbarui pendaftaran. Status: ${response.statusCode}');
     } on SocketException {
@@ -331,6 +344,8 @@ class PendaftaranService {
           return;
         }
         throw Exception(jsonResponse['message'] ?? 'Pendaftaran gagal dihapus');
+      } else if (response.statusCode == 403) {
+        throw Exception('Pendaftaran tidak dapat dihapus karena status antrian bukan "Belum Dipanggil".');
       }
       throw Exception('Gagal menghapus pendaftaran. Status: ${response.statusCode}');
     } on SocketException {
@@ -345,5 +360,43 @@ class PendaftaranService {
     }
   }
 
-  
+  Future<Map<String, dynamic>> getPasienByNik(String nik) async {
+    try {
+      print('Fetching patient by NIK from: ${ApiConfig.baseUrl}/pendaftarans/nik/$nik');
+      final token = await AuthService().getToken();
+      if (token == null) {
+        throw Exception('User belum login');
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/pendaftarans/nik/$nik'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Response status: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
+          return jsonResponse['data'];
+        }
+        throw Exception('Data pasien tidak ditemukan');
+      } else if (response.statusCode == 404) {
+        throw Exception('Pasien dengan NIK ini tidak ditemukan.');
+      }
+      throw Exception('Gagal memuat data pasien. Status: ${response.statusCode}');
+    } on SocketException {
+      throw Exception('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+    } on HttpException {
+      throw Exception('Tidak dapat mengambil data pasien.');
+    } on FormatException {
+      throw Exception('Format data pasien tidak valid.');
+    } catch (e) {
+      print('Error in getPasienByNik: $e');
+      throw Exception('Terjadi kesalahan: ${e.toString()}');
+    }
+  }
 }

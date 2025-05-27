@@ -15,12 +15,6 @@ use Illuminate\Support\Facades\Validator;
 
 class PendaftaranApiController extends Controller
 {
-    /**
-     * Display a listing of registrations.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request)
     {
         try {
@@ -51,11 +45,6 @@ class PendaftaranApiController extends Controller
         }
     }
 
-    /**
-     * Display a listing of clusters.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function getClusters()
     {
         try {
@@ -76,12 +65,6 @@ class PendaftaranApiController extends Controller
         }
     }
 
-    /**
-     * Store a newly created registration in storage.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -101,7 +84,7 @@ class PendaftaranApiController extends Controller
             'no_kk' => 'nullable|string|size:16|regex:/^\d{16}$/',
             'pekerjaan' => 'nullable|string|max:255',
             'no_bpjs' => [
-                'required_if:jenis_pembayaran,bpjs',
+                'nullable',
                 'string',
                 'size:13',
                 'regex:/^\d{13}$/',
@@ -136,14 +119,12 @@ class PendaftaranApiController extends Controller
             'alamat.required' => 'Alamat wajib diisi.',
             'no_kk.size' => 'No. KK harus 16 digit angka.',
             'no_kk.regex' => 'No. KK harus berupa angka.',
-            'no_bpjs.required_if' => 'No. BPJS wajib diisi untuk pembayaran BPJS.',
             'no_bpjs.size' => 'No. BPJS harus 13 digit angka.',
             'no_bpjs.regex' => 'No. BPJS harus berupa angka.',
         ]);
 
         if ($validator->fails()) {
             Log::warning('Validation failed during registration creation', [
-                'input' => $request->except(['password']),
                 'errors' => $validator->errors()->toArray(),
             ]);
             return response()->json([
@@ -240,10 +221,7 @@ class PendaftaranApiController extends Controller
                 ],
             ], 201);
         } catch (\Exception $e) {
-            Log::error('Registration creation failed: ' . $e->getMessage(), [
-                'input' => $request->except(['password']),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            Log::error('Registration creation failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Pendaftaran gagal: ' . $e->getMessage(),
@@ -252,12 +230,6 @@ class PendaftaranApiController extends Controller
         }
     }
 
-    /**
-     * Display the specified registration.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id)
     {
         try {
@@ -268,7 +240,18 @@ class PendaftaranApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Registration retrieved successfully.',
-                'data' => $pendaftaran,
+                'data' => [
+                    'id' => $pendaftaran->id,
+                    'pasien' => [
+                        'nama' => $pendaftaran->pasien->nama,
+                    ],
+                    'cluster' => [
+                        'nama' => $pendaftaran->cluster->nama,
+                    ],
+                    'keluhan' => $pendaftaran->keluhan,
+                    'tanggal_daftar' => $pendaftaran->tanggal_daftar,
+                    'no_antrian' => $pendaftaran->antrian ? $pendaftaran->antrian->no_antrian : '-',
+                ],
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::warning('Registration not found', ['pendaftaran_id' => $id]);
@@ -277,7 +260,7 @@ class PendaftaranApiController extends Controller
                 'message' => 'Pendaftaran tidak ditemukan.',
             ], 404);
         } catch (\Exception $e) {
-            Log::error('Failed to retrieve registration: ' . $e->getMessage(), ['pendaftaran_id' => $id]);
+            Log::error('Failed to retrieve registration: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memuat pendaftaran.',
@@ -286,13 +269,6 @@ class PendaftaranApiController extends Controller
         }
     }
 
-    /**
-     * Update the specified registration in storage.
-     *
-     * @param Request $request
-     * @param Pendaftaran $pendaftaran
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request, Pendaftaran $pendaftaran)
     {
         if (!$pendaftaran->canBeEdited()) {
@@ -309,10 +285,10 @@ class PendaftaranApiController extends Controller
         $validator = Validator::make($request->all(), [
             'keluhan' => 'required|string',
             'cluster_id' => 'required|exists:clusters,id',
-            'tanggal_daftar' => 'required|date',
+            'tanggal_daftar' => 'required|date|date_format:Y-m-d',
             'jenis_pembayaran' => 'required|in:bpjs,umum',
             'no_bpjs' => [
-                'required',
+                'nullable',
                 'string',
                 'size:13',
                 'regex:/^\d{13}$/',
@@ -329,7 +305,7 @@ class PendaftaranApiController extends Controller
             ],
             'nama' => $pendaftaran->jenis_pasien === 'baru' ? 'required|string|max:255' : 'nullable',
             'jenis_kelamin' => $pendaftaran->jenis_pasien === 'baru' ? 'required|in:laki-laki,perempuan' : 'nullable',
-            'tanggal_lahir' => $pendaftaran->jenis_pasien === 'baru' ? 'required|date|before:today' : 'nullable',
+            'tanggal_lahir' => $pendaftaran->jenis_pasien === 'baru' ? 'required|date|date_format:Y-m-d|before:today' : 'nullable',
             'tempat_lahir' => $pendaftaran->jenis_pasien === 'baru' ? 'required|string|max:255' : 'nullable',
             'alamat' => $pendaftaran->jenis_pasien === 'baru' ? 'required|string|max:255' : 'nullable',
             'no_hp' => 'required|string|max:20',
@@ -342,12 +318,14 @@ class PendaftaranApiController extends Controller
             'keluhan.required' => 'Keluhan wajib diisi.',
             'cluster_id.required' => 'Cluster wajib dipilih.',
             'tanggal_daftar.required' => 'Tanggal daftar wajib diisi.',
+            'tanggal_daftar.date_format' => 'Format tanggal daftar harus YYYY-MM-DD.',
             'jenis_pembayaran.required' => 'Jenis pembayaran wajib dipilih.',
             'no_bpjs.size' => 'No. BPJS harus 13 digit angka.',
             'no_bpjs.regex' => 'No. BPJS harus berupa angka.',
             'nama.required' => 'Nama wajib diisi untuk pasien baru.',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih untuk pasien baru.',
             'tanggal_lahir.required' => 'Tanggal lahir wajib diisi untuk pasien baru.',
+            'tanggal_lahir.date_format' => 'Format tanggal lahir harus YYYY-MM-DD.',
             'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini.',
             'tempat_lahir.required' => 'Tempat lahir wajib diisi untuk pasien baru.',
             'alamat.required' => 'Alamat wajib diisi untuk pasien baru.',
@@ -408,7 +386,7 @@ class PendaftaranApiController extends Controller
                     $antrian = Antrian::create([
                         'pendaftaran_id' => $pendaftaran->id,
                         'cluster_id' => $pendaftaran->cluster_id,
-                        'no_antrian' => Antrian::generateNoAntrian($pendaftaran->tanggal_daftar),
+                        'no_antrian' => Antrian::generateNoAntrian($pendaftaran->tanggal_daftar, $pendaftaran->cluster_id),
                         'tanggal' => $pendaftaran->tanggal_daftar,
                         'status' => StatusAntrian::BELUM_DIPANGGIL,
                     ]);
@@ -426,13 +404,21 @@ class PendaftaranApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Pendaftaran berhasil diperbarui. Antrian nomor ' . $pendaftaran->antrian->no_antrian . ' tetap.',
-                'data' => $pendaftaran,
+                'data' => [
+                    'id' => $pendaftaran->id,
+                    'pasien' => [
+                        'nama' => $pendaftaran->pasien->nama,
+                    ],
+                    'cluster' => [
+                        'nama' => $pendaftaran->cluster->nama,
+                    ],
+                    'keluhan' => $pendaftaran->keluhan,
+                    'tanggal_daftar' => $pendaftaran->tanggal_daftar,
+                    'no_antrian' => $pendaftaran->antrian->no_antrian,
+                ],
             ], 200);
         } catch (\Exception $e) {
-            Log::error('Registration update failed: ' . $e->getMessage(), [
-                'pendaftaran_id' => $pendaftaran->id,
-                'trace' => $e->getTraceAsString(),
-            ]);
+            Log::error('Registration update failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Pendaftaran gagal diperbarui.',
@@ -442,55 +428,50 @@ class PendaftaranApiController extends Controller
     }
 
     public function showByNik($nik)
-{
-    $pasien = Pasien::where('nik', $nik)->first();
+    {
+        $pasien = Pasien::where('nik', $nik)->first();
 
-    if (!$pasien) {
+        if (!$pasien) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pasien dengan NIK ini tidak ditemukan.',
+            ], 404);
+        }
+
+        $pendaftaranTerakhir = Pendaftaran::where('pasien_id', $pasien->id)
+            ->with(['cluster', 'antrian'])
+            ->latest()
+            ->first();
+
         return response()->json([
-            'success' => false,
-            'message' => 'Pasien dengan NIK ini tidak ditemukan.',
-        ], 404);
+            'success' => true,
+            'data' => [
+                'pasien' => [
+                    'id' => $pasien->id,
+                    'nik' => $pasien->nik,
+                    'nama' => $pasien->nama,
+                    'jenis_kelamin' => $pasien->jenis_kelamin,
+                    'tanggal_lahir' => $pasien->tanggal_lahir,
+                    'tempat_lahir' => $pasien->tempat_lahir,
+                    'alamat' => $pasien->alamat,
+                    'no_hp' => $pasien->no_hp,
+                    'pekerjaan' => $pasien->pekerjaan,
+                    'no_bpjs' => $pasien->no_bpjs,
+                    'golongan_darah' => $pasien->golongan_darah,
+                    'riwayat_alergi' => $pasien->riwayat_alergi,
+                    'riwayat_penyakit' => $pasien->riwayat_penyakit,
+                    'no_rm' => $pasien->no_rm,
+                ],
+                'pendaftaran' => $pendaftaranTerakhir ? [
+                    'id' => $pendaftaranTerakhir->id,
+                    'keluhan' => $pendaftaranTerakhir->keluhan,
+                    'cluster' => $pendaftaranTerakhir->cluster,
+                    'antrian' => $pendaftaranTerakhir->antrian,
+                ] : null,
+            ],
+        ], 200);
     }
 
-    $pendaftaranTerakhir = Pendaftaran::where('pasien_id', $pasien->id)
-        ->with(['cluster', 'antrian'])
-        ->latest()
-        ->first();
-
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'pasien' => [
-                'id' => $pasien->id,
-                'nik' => $pasien->nik,
-                'nama' => $pasien->nama,
-                'jenis_kelamin' => $pasien->jenis_kelamin,
-                'tanggal_lahir' => $pasien->tanggal_lahir,
-                'tempat_lahir' => $pasien->tempat_lahir,
-                'alamat' => $pasien->alamat,
-                'no_hp' => $pasien->no_hp,
-                'pekerjaan' => $pasien->pekerjaan,
-                'no_bpjs' => $pasien->no_bpjs,
-                'golongan_darah' => $pasien->golongan_darah,
-                'riwayat_alergi' => $pasien->riwayat_alergi,
-                'riwayat_penyakit' => $pasien->riwayat_penyakit,
-            ],
-            'pendaftaran' => $pendaftaranTerakhir ? [
-                'id' => $pendaftaranTerakhir->id,
-                'keluhan' => $pendaftaranTerakhir->keluhan,
-                'cluster' => $pendaftaranTerakhir->cluster,
-                'antrian' => $pendaftaranTerakhir->antrian,
-            ] : null,
-        ],
-    ], 200);
-}
-
-    /**
-     * Remove the specified registration from storage.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy($id)
     {
         try {
@@ -521,7 +502,7 @@ class PendaftaranApiController extends Controller
                 'message' => 'Pendaftaran tidak ditemukan.',
             ], 404);
         } catch (\Exception $e) {
-            Log::error('Failed to delete registration: ' . $e->getMessage(), ['pendaftaran_id' => $id]);
+            Log::error('Failed to delete registration: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus pendaftaran.',
