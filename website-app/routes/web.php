@@ -13,6 +13,7 @@ use App\Http\Controllers\KategoriBeritaController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PendaftaranController;
 
 // Authentication Routes
@@ -41,6 +42,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('kategori_berita', KategoriBeritaController::class);
 
+    Route::resource('medical_record', MedicalRecordController::class);
+    Route::resource('medical_record', MedicalRecordController::class);
+    Route::get('medical-record/{id}/preview', [MedicalRecordController::class, 'preview'])->name('medical_record.preview');
+    Route::get('medical-record/{id}/pdf', [MedicalRecordController::class, 'pdf'])->name('medical_record.pdf');   
 
     Route::resource('faq', FaqController::class);
 

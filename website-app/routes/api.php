@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PasienApiController;
 use App\Http\Controllers\Api\AuthApiController;
-use App\Http\Controllers\Api\ClusterApiController;
 use App\Http\Controllers\Api\FaqApiController;
 use App\Http\Controllers\Api\JadwalDokterApiController;
 use App\Http\Controllers\Api\MedicalRecordApiController;
@@ -39,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Register as patient (convert app user to patient)
     Route::post('/register-as-patient', [AuthApiController::class, 'registerAsPatient']);
 
-        // Cluster routes
+        // Pendaftaran routes
     Route::get('/pendaftarans', [PendaftaranApiController::class, 'index']);
     Route::get('/clusters', [PendaftaranApiController::class, 'getClusters']);
     Route::post('/pendaftarans', [PendaftaranApiController::class, 'store']);
