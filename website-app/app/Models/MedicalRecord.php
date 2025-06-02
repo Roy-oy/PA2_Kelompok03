@@ -41,4 +41,9 @@ class MedicalRecord extends Model
     {
         return $this->belongsTo(Pasien::class);
     }
+
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class, 'medical_record_id');
+    }
 }

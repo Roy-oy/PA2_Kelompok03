@@ -134,7 +134,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        const MedicalRecordScreen(records: [],),
+                                        const MedicalRecordScreen(
+                                      records: [],
+                                    ),
                                   ),
                                 );
                               },
@@ -157,7 +159,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               title: 'Feedback',
                               color: const Color(0xFF06489F),
                               onTap: () {
-                                _rujukan(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const Feedback_1()),
+                                );
                               },
                             ),
                             _buildMenuItem(

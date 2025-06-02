@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PasienApiController;
 use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\FaqApiController;
+use App\Http\Controllers\Api\FeedbackApiController;
 use App\Http\Controllers\Api\JadwalDokterApiController;
 use App\Http\Controllers\Api\MedicalRecordApiController;
 use App\Http\Controllers\Api\PengumumanApiController;
@@ -60,7 +61,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/{id}', [MedicalRecordApiController::class, 'destroy']);
     Route::get('/{id}/pdf', [MedicalRecordApiController::class, 'pdf']);
     Route::get('/current-antrian', [MedicalRecordApiController::class, 'getCurrentAntrian']);
+    
 });
+
+Route::prefix('feedback')->group(function () {
+        Route::get('/', [FeedbackApiController::class, 'index']);
+        Route::post('/', [FeedbackApiController::class, 'store']);
+        Route::get('/{id}', [FeedbackApiController::class, 'show']);
+    });
 
 });
 
@@ -75,8 +83,3 @@ Route::get('/pengumuman/{pengumuman}', [PengumumanApiController::class, 'show'])
 // FAQ routes
 Route::get('/faq', [FaqApiController::class, 'index']);
 Route::get('/faq/{faq}', [FaqApiController::class, 'show']);
-
-
-
-
-

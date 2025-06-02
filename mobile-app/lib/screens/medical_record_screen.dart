@@ -33,7 +33,7 @@ class _MedicalRecordScreenState extends State<MedicalRecordScreen> {
     });
 
     try {
-      final records = await _medicalRecordService.getMedicalRecords(search: _nikController.text);
+      final records = await _medicalRecordService.getMedicalRecords(search: _nikController.text, nik: '');
       setState(() {
         _medicalRecords = records;
       });

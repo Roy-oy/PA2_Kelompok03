@@ -13,6 +13,7 @@ use App\Http\Controllers\KategoriBeritaController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PendaftaranController;
 
@@ -61,4 +62,6 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/antrian/{antrian}', [AntrianController::class, 'destroy'])->name('antrian.destroy');
     Route::get('/pendaftaran/create', [PendaftaranController::class, 'create'])->name('pendaftaran.create');
 
+    Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
+    Route::get('/feedback/{feedback}', [FeedbackController::class, 'show'])->name('feedback.show');
 });

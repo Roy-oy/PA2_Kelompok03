@@ -12,7 +12,7 @@ class MedicalRecordService {
 
   MedicalRecordService._internal();
 
-  Future<List<MedicalRecordModel>> getMedicalRecords({String? search}) async {
+  Future<List<MedicalRecordModel>> getMedicalRecords({String? search, required String nik}) async {
     try {
       print('Fetching medical records from: ${ApiConfig.baseUrl}/medical-records');
       final token = await AuthService().getToken();

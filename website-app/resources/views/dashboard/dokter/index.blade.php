@@ -27,15 +27,26 @@
 
     <!-- Alert Messages -->
     @if(session('success'))
-    <div class="p-4 mb-6 rounded-lg bg-green-50 border-l-4 border-green-500 relative" role="alert">
-        <div class="flex items-center">
-            <i class="fas fa-check-circle text-green-500 mr-3 text-lg"></i>
-            <span class="text-green-800 font-medium">{{ session('success') }}</span>
+        <div class="p-4 mb-6 rounded-lg bg-green-50 border-l-4 border-green-500 relative" role="alert">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-3 text-lg"></i>
+                <span class="text-green-800 font-medium">{{ session('success') }}</span>
+            </div>
+            <button type="button" class="absolute top-4 right-4 text-green-600 hover:text-green-800" onclick="this.parentElement.style.display='none'">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <button type="button" class="absolute top-4 right-4 text-green-600 hover:text-green-800" onclick="this.parentElement.style.display='none'">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
+    @endif
+    @if(session('error'))
+        <div class="p-4 mb-6 rounded-lg bg-red-50 border-l-4 border-red-500 relative" role="alert">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-500 mr-3 text-lg"></i>
+                <span class="text-red-800 font-medium">{{ session('error') }}</span>
+            </div>
+            <button type="button" class="absolute top-4 right-4 text-red-600 hover:text-red-800" onclick="this.parentElement.style.display='none'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     @endif
 
     <!-- Data Table -->
@@ -56,10 +67,10 @@
                         <tr class="bg-gray-50 border-b">
                             <th class="py-3.5 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">NO_STR</th>
                             <th class="py-3.5 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                            <th class="py-3.5 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis_Kelamin</th>
+                            <th class="py-3.5 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
                             <th class="py-3.5 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spesialisasi</th>
                             <th class="py-3.5 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Umur</th>
-                            <th class="py-3.5 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto_profil</th>
+                            <th class="py-3.5 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto Profil</th>
                             <th class="py-3.5 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Status</th>
                             <th class="py-3.5 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Aksi</th>
                         </tr>
@@ -76,18 +87,18 @@
                                 </div>
                             </td>
                             <td class="py-4 px-4 text-sm text-gray-500 whitespace-nowrap">
-                                @if($dokter->jenis_kelamin == 'Laki-laki')
+                                @if($dokter->jenis_kelamin == 'laki-laki')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <i class="fas fa-mars mr-1"></i> Laki-laki
+                                        <i class="fas fa-mars mr-1"></i> laki-laki
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
-                                        <i class="fas fa-venus mr-1"></i> Perempuan
+                                        <i class="fas fa-venus mr-1"></i> perempuan
                                     </span>
                                 @endif
                             </td>
                             <td class="py-4 px-4 text-sm text-gray-500 whitespace-nowrap">{{ $dokter->spesialisasi }}</td>
-                            <td class="py-4 px-4 text-sm text-gray-500 whitespace-nowrap">
+                            <td class="py-4 px-4 text-sm text-gray-500 whitespace-nowrap hidden md:table-cell">
                                 <div class="flex items-center">
                                     <i class="fas fa-birthday-cake mr-1.5 text-gray-400"></i>
                                     {{ $dokter->umur }} tahun
@@ -95,16 +106,11 @@
                             </td>
                             <td class="py-4 px-4 text-sm text-gray-500 whitespace-nowrap">
                                 @if($dokter->foto_profil)
-                                    @php
-                                        $photoPath = asset('storage/' . $dokter->foto_profil);
-                                        \Log::info('Doctor ID: ' . $dokter->id);
-                                        \Log::info('Photo path in DB: ' . $dokter->foto_profil);
-                                        \Log::info('Generated URL: ' . $photoPath);
-                                        \Log::info('File exists: ' . (file_exists(public_path('storage/' . $dokter->foto_profil)) ? 'Yes' : 'No'));
-                                        \Log::info('Full path: ' . public_path('storage/' . $dokter->foto_profil));
-                                    @endphp
                                     <div class="w-20 h-20 overflow-hidden rounded-lg">
-                                        <img src="{{ $photoPath }}" alt="Foto Profil {{ $dokter->nama }}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNFMkUyRTIiLz48cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMCAzYzEuNjYgMCAzIDEuMzQgMyAzcy0xLjM0IDMtMyAzLTMtMS4zNC0zLTMgMS4zNC0zIDMtM3ptMCAxNC4yYy0yLjUgMC00LjcxLTEuMjgtNi0zLjIyLjAzLTEuOTkgNC0zLjA4IDYtMy4wOCAxLjk5IDAgNS45NyAxLjA5IDYgMy4wOC0xLjI5IDEuOTQtMy41IDMuMjItNiAzLjIyeiIgZmlsbD0iIzk5OSIvPjwvc3ZnPg==';">
+                                        <img src="{{ asset('storage/' . $dokter->foto_profil) }}"
+                                            alt="Foto Profil {{ $dokter->nama }}"
+                                            class="w-full h-full object-cover"
+                                            onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNFMkUyRTIiLz48cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMCAzYzEuNjYgMCAzIDEuMzQgMyAzcy0xLjM0IDMtMyAzLTMtMS4zNC0zLTMgMS4zNC0zIDMtM3ptMCAxNC4yYy0yLjUgMC00LjcxLTEuMjgtNi0zLjIyLjAzLTEuOTkgNC0zLjA4IDYtMy4wOCAxLjk5IDAgNS45NyAxLjA5IDYgMy4wOC0xLjI5IDEuOTQtMy41IDMuMjItNiAzLjIyeiIgZmlsbD0iIzk5OSIvPjwvc3ZnPg==';">
                                     </div>
                                 @else
                                     <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -137,7 +143,7 @@
                                             <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
                                         </svg>
                                     </a>
-                                    <button type="button" 
+                                    <button type="button"
                                             class="text-white bg-red-600 hover:bg-red-700 p-2 rounded-lg transition-colors delete-btn" title="Hapus Dokter" data-id="{{ $dokter->id }}" data-name="{{ $dokter->nama }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                                 <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
@@ -180,7 +186,7 @@
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <!-- Background overlay -->
         <div id="modal-backdrop" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-        
+
         <!-- Modal panel -->
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">

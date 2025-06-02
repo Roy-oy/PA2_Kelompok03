@@ -58,6 +58,16 @@ class Pasien extends Model
         return Carbon::parse($this->tanggal_lahir)->age . ' tahun';
     }
 
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class, 'pasien_id');
+    }
+
+    public function medicalRecords()
+    {
+        return $this->hasMany(MedicalRecord::class, 'pasien_id');
+    }
+
     /**
      * Get the app user associated with the patient.
      */
