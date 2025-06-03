@@ -18,37 +18,83 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  int _articleIndex = 0;
+
+  final List<String> carouselImages = [
+    'assets/images/carousel-1.jpg',
+    'assets/images/carousel-2.jpg',
+    'assets/images/carousel-3.jpg',
+  ];
+
+  final List<Map<String, String?>> recommendedArticles = [
+    {
+      'title': 'Tips Sehat Ala Dokter Keluarga',
+      'date': '01-06-2025',
+      'views': '12',
+      'thumbnail': 'assets/images/carousel-1.jpg',
+      'category': 'GAYA HIDUP'
+    },
+    {
+      'title': 'Manfaat Tidur Berkualitas untuk Imunitas Tubuh',
+      'date': '01-06-2025',
+      'views': '8',
+      'thumbnail': 'assets/images/carousel-2.jpg',
+      'category': null
+    },
+  ];
+
+  final List<Map<String, String?>> mainNews = [
+    {
+      'title': 'Lanjutkan Kerja Sama dengan 40 FKTP, BPJS Kesehatan Dorong Komitmen FKTP',
+      'date': '01-06-2025',
+      'views': '25',
+      'thumbnail': 'assets/images/carousel-3.jpg',
+      'category': 'BPJS'
+    },
+  ];
+
+  final List<Map<String, String?>> otherNews = [
+    {
+      'title': 'Imunisasi Dasar Posyandu Siborongborong dilaksanakan dengan lancar',
+      'date': '18-03-2025',
+      'views': '3',
+      'thumbnail': 'assets/images/carousel-2.jpg',
+      'category': 'IMUNISASI DASAR',
+    },
+    {
+      'title': 'Dengan BPJS Kesehatan Siborongborong Tetap Optimis Melawan Penyakit Jantung dan Saraf',
+      'date': '18-03-2025',
+      'views': '3',
+      'thumbnail': 'assets/images/carousel-3.jpg',
+      'category': null,
+    },
+    {
+      'title': 'Mobile JKN Penerangan Perjalanan Widi dalam Melawan Strok',
+      'date': '18-03-2025',
+      'views': '3',
+      'thumbnail': 'assets/images/carousel-1.jpg',
+      'category': null,
+    },
+  ];
+
+  List<Map<String, String?>> get allArticles => [
+    ...recommendedArticles,
+    ...mainNews,
+    ...otherNews,
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final List<String> carouselImages = [
-      'assets/images/carousel-1.jpg',
-      'assets/images/carousel-2.jpg',
-      'assets/images/carousel-3.jpg',
-    ];
-
-    // Set status bar to be transparent with dark icons
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ));
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // Custom header integrated directly
           _buildHeader(),
-
-          // Content area
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  // Small gap before carousel
                   const SizedBox(height: 5),
-
-                  // Carousel section
                   Stack(
                     children: [
                       CarouselSlider(
@@ -107,10 +153,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  // Menu section
                   Padding(
                     padding: EdgeInsets.all(MediaQuery.of(context).size.width *
-                        0.04), // Responsive padding
+                        0.04),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -121,7 +166,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               title: 'Pendaftaran',
                               color: const Color(0xFF06489F),
                               onTap: () {
-                                // Handle pendaftaran tap
                                 _handlePatientRegistration(context);
                               },
                             ),
@@ -179,6 +223,84 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Berita & Artikel',
+                          style: TextStyle(
+                            fontFamily: 'KohSantepheap',
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF06489F),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Stack(
+                          children: [
+                            CarouselSlider(
+                              options: CarouselOptions(
+                                height: 160,
+                                viewportFraction: 0.85,
+                                enlargeCenterPage: true,
+                                autoPlay: true,
+                                autoPlayInterval: const Duration(seconds: 5),
+                                autoPlayAnimationDuration:
+                                    const Duration(milliseconds: 800),
+                                autoPlayCurve: Curves.fastOutSlowIn,
+                                onPageChanged: (index, reason) {
+                                  setState(() {
+                                    _articleIndex = index;
+                                  });
+                                },
+                              ),
+                              items: allArticles.map((article) {
+                                return Builder(
+                                  builder: (BuildContext context) {
+                                    return _buildArticleCard(
+                                      title: article['title']!,
+                                      date: article['date']!,
+                                      views: article['views']!,
+                                      thumbnail: article['thumbnail']!,
+                                      category: article['category'],
+                                    );
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                            Positioned(
+                              bottom: 10,
+                              left: 0,
+                              right: 0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: allArticles.asMap().entries.map((entry) {
+                                  return Container(
+                                    width: 10.0,
+                                    height: 10.0,
+                                    margin:
+                                        const EdgeInsets.symmetric(horizontal: 4.0),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: const Color(0xFF06489F).withOpacity(
+                                        _articleIndex == entry.key ? 0.9 : 0.3,
+                                      ),
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -189,18 +311,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader() {
-    // Get the status bar height and screen size
     final MediaQueryData mediaQuery =
         MediaQueryData.fromView(WidgetsBinding.instance.window);
     final double statusBarHeight = mediaQuery.padding.top;
     final double screenWidth = mediaQuery.size.width;
 
-    // Calculate responsive sizes based on screen width
-    final double headerHeight =
-        mediaQuery.size.height * 0.09; // 9% of screen height
-    final double logoSize = screenWidth * 0.24; // 24% of screen width
-    final double titleFontSize = screenWidth * 0.05; // 5% of screen width
-    final double subtitleFontSize = screenWidth * 0.032; // 2.8% of screen width
+    final double headerHeight = mediaQuery.size.height * 0.09;
+    final double logoSize = screenWidth * 0.24;
+    final double titleFontSize = screenWidth * 0.05;
+    final double subtitleFontSize = screenWidth * 0.032;
 
     return Container(
       height: headerHeight + statusBarHeight,
@@ -209,12 +328,11 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: EdgeInsets.only(top: statusBarHeight),
         child: Stack(
           children: [
-            // Blue background positioned to overlap with logo
             Positioned(
-              left: logoSize * 0.85, // Relative to logo size
+              left: logoSize * 0.85,
               top: 0,
               bottom: 0,
-              right: screenWidth * 0.04, // 4% of screen width
+              right: screenWidth * 0.04,
               child: Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFF06489F),
@@ -224,8 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.only(
-                      left: screenWidth * 0.055), // Responsive padding
+                  padding: EdgeInsets.only(left: screenWidth * 0.055),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -255,10 +372,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            // Logo on top of the stack to ensure visibility
             Positioned(
-              left: -screenWidth *
-                  0.015, // Small negative value relative to screen width
+              left: -screenWidth * 0.015,
               top: 0,
               bottom: 0,
               child: Center(
@@ -284,12 +399,9 @@ class _HomeScreenState extends State<HomeScreen> {
     required Color color,
     required VoidCallback onTap,
   }) {
-    // Get screen dimensions for responsive sizing
     final double screenWidth = MediaQuery.of(context).size.width;
-
-    // Calculate sizes based on screen width
-    final double iconSize = screenWidth * 0.15; // 15% of screen width
-    final double fontSize = screenWidth * 0.023; // 2.5% of screen width
+    final double iconSize = screenWidth * 0.15;
+    final double fontSize = screenWidth * 0.023;
 
     return Expanded(
       child: GestureDetector(
@@ -299,7 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               width: iconSize,
               height: iconSize,
-              padding: EdgeInsets.all(screenWidth * 0.01), // Responsive padding
+              padding: EdgeInsets.all(screenWidth * 0.01),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
@@ -309,7 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fit: BoxFit.contain,
               ),
             ),
-            SizedBox(height: screenWidth * 0.008), // Responsive spacing
+            SizedBox(height: screenWidth * 0.008),
             Text(
               title,
               style: TextStyle(
@@ -328,12 +440,161 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildArticleCard({
+    required String title,
+    required String date,
+    required String views,
+    required String thumbnail,
+    String? category,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16.0),
+      child: InkWell(
+        onTap: () {},
+        splashColor: const Color(0xFF06489F).withOpacity(0.2),
+        highlightColor: const Color(0xFF06489F).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16.0),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 6.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(color: Colors.grey.shade200, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16.0),
+            child: Stack(
+              children: [
+                Image.asset(
+                  thumbnail,
+                  height: 160,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: AnimatedOpacity(
+                    opacity: 1.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: category != null
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 5.0),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF06489F),
+                              borderRadius: BorderRadius.circular(6.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              category,
+                              style: const TextStyle(
+                                fontFamily: 'KohSantepheap',
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.1),
+                          Colors.black.withOpacity(0.8),
+                        ],
+                      ),
+                    ),
+                    child: AnimatedOpacity(
+                      opacity: 1.0,
+                      duration: const Duration(milliseconds: 300),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontFamily: 'KohSantepheap',
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black54,
+                                  offset: Offset(1, 1),
+                                  blurRadius: 2,
+                                ),
+                              ],
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(Icons.remove_red_eye,
+                                  size: 14, color: Colors.white70),
+                              const SizedBox(width: 6),
+                              Text(
+                                views,
+                                style: const TextStyle(
+                                  fontFamily: 'KohSantepheap',
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                date,
+                                style: const TextStyle(
+                                  fontFamily: 'KohSantepheap',
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _handlePatientRegistration(BuildContext context) async {
-    // Check if user is logged in
     final bool isLoggedIn = await AuthService().isLoggedIn();
 
     if (!isLoggedIn) {
-      // If not logged in, show message to login first
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -344,7 +605,6 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    // Display health facility selection bottom sheet
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -353,9 +613,9 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.45, // Lebih kecil agar informasi tidak kelihatan
-        minChildSize: 0.4, // Minimal 40% dari layar
-        maxChildSize: 0.95, // Maksimal 95% dari layar
+        initialChildSize: 0.45,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
         expand: false,
         builder: (context, scrollController) => Container(
           decoration: BoxDecoration(
@@ -374,7 +634,6 @@ class _HomeScreenState extends State<HomeScreen> {
             controller: scrollController,
             padding: const EdgeInsets.fromLTRB(20, 5, 20, 25),
             children: [
-              // Garis kecil di bagian atas sebagai indikator
               Center(
                 child: Container(
                   width: 40,
@@ -386,8 +645,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-
-              // Judul
               const Text(
                 'Pilih Jenis Fasilitas Kesehatan',
                 textAlign: TextAlign.center,
@@ -398,10 +655,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontFamily: 'KohSantepheap',
                 ),
               ),
-
               const SizedBox(height: 10),
-
-              // Subtitle - petunjuk untuk scroll
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
@@ -433,10 +687,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 25),
-
-              // Pilihan fasilitas
               Row(
                 children: [
                   _buildFacilityOption(
@@ -460,11 +711,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-
-              // Space dengan ketinggian cukup agar content berikutnya tidak terlihat saat pertama kali dibuka
               const SizedBox(height: 40),
-
-              // Garis pembatas dengan dekorasi
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 5),
                 child: Stack(
@@ -495,10 +742,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 30),
-
-              // Judul informasi penjelasan
               const Row(
                 children: [
                   Icon(
@@ -518,10 +762,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 20),
-
-              // Informasi Faskes Tingkat Pertama
               _buildFacilityInfoSection(
                 title: 'Fasilitas Kesehatan Tingkat Pertama (FKTP)',
                 content:
@@ -544,10 +785,7 @@ Jenis Pelayanan yang ditanggung:
 • Pemeriksaan ibu hamil, nifas, dan menyusui
 • Pelayanan program rujuk balik''',
               ),
-
               const SizedBox(height: 25),
-
-              // Informasi Faskes Rujukan Tingkat Lanjut
               _buildFacilityInfoSection(
                 title: 'Fasilitas Kesehatan Rujukan Tingkat Lanjut (FKRTL)',
                 content:
@@ -569,10 +807,7 @@ Jenis Pelayanan yang ditanggung:
 • Pelayanan kedokteran forensik
 • Pelayanan jenazah di fasilitas kesehatan''',
               ),
-
               const SizedBox(height: 25),
-
-              // Informasi Sistem Rujukan BPJS
               _buildFacilityInfoSection(
                 title: 'Sistem Rujukan BPJS Kesehatan',
                 content:
@@ -626,7 +861,6 @@ Pengecualian Rujukan Berjenjang:
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon
               SizedBox(
                 height: 80,
                 child: Image.asset(
@@ -634,14 +868,11 @@ Pengecualian Rujukan Berjenjang:
                   fit: BoxFit.contain,
                 ),
               ),
-
               const Divider(
                 color: Color(0xFFEEEEEE),
                 thickness: 1,
                 height: 30,
               ),
-
-              // Title
               Text(
                 title,
                 textAlign: TextAlign.center,
@@ -685,7 +916,6 @@ Pengecualian Rujukan Berjenjang:
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header dengan warna background
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             margin: const EdgeInsets.only(bottom: 12),
@@ -702,8 +932,6 @@ Pengecualian Rujukan Berjenjang:
               ),
             ),
           ),
-
-          // Content dengan rata kiri-kanan
           RichText(
             textAlign: TextAlign.justify,
             text: TextSpan(
@@ -722,23 +950,13 @@ Pengecualian Rujukan Berjenjang:
   }
 
   void _handleFaskesPertama() {
-    // Arahkan ke form pendaftaran pasien
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const PatientFormScreen()),
     );
   }
 
-  void _rujukan(BuildContext context) {
-    // Arahkan ke halaman Feedback_1
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Feedback_1()),
-    );
-  }
-
   void _pengumuman(BuildContext context) {
-    // Arahkan ke halaman pengummuman
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const Pengumuman()),

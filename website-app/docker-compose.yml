@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laravel-puskesmas
+    container_name: puskesmas-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - puskesmas-network
+    depends_on:
+      - db
+      - redis
+
+  # Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: puskesmas-webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - puskesmas-network
+    depends_on:
+      - app
+
+  # MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: puskesmas-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+    ports:
+      - "3306:3306"
+    networks:
+      - puskesmas-network
+
+  # Redis Service
+  redis:
+    image: redis:alpine
+    container_name: puskesmas-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - puskesmas-network
+
+  # Queue Worker
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: puskesmas-queue
+    restart: unless-stopped
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - puskesmas-network
+    depends_on:
+      - app
+      - db
+      - redis
+
+  # Scheduler
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: puskesmas-scheduler
+    restart: unless-stopped
+    command: php artisan schedule:run
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - puskesmas-network
+    depends_on:
+      - app
+      - db
+
+# Docker Networks
+networks:
+  puskesmas-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  mysql_data:
+    driver: local

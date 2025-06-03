@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PasienApiController;
 use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\BeritaApiController;
 use App\Http\Controllers\Api\FaqApiController;
 use App\Http\Controllers\Api\FeedbackApiController;
 use App\Http\Controllers\Api\JadwalDokterApiController;
@@ -83,3 +84,10 @@ Route::get('/pengumuman/{pengumuman}', [PengumumanApiController::class, 'show'])
 // FAQ routes
 Route::get('/faq', [FaqApiController::class, 'index']);
 Route::get('/faq/{faq}', [FaqApiController::class, 'show']);
+
+// Berita routes (tanpa autentikasi)
+Route::get('/berita', [BeritaApiController::class, 'index']);
+Route::get('/berita/{id}', [BeritaApiController::class, 'show']);
+Route::get('/berita/kategori/{kategoriId}', [BeritaApiController::class, 'getByKategori']);
+Route::get('/berita/search', [BeritaApiController::class, 'search']);
+Route::get('/kategori-berita', [BeritaApiController::class, 'getKategori']);

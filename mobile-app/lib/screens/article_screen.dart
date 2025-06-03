@@ -12,6 +12,57 @@ class _ArticleScreenState extends State<ArticleScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  final List<Map<String, String?>> recommendedArticles = [
+    {
+      'title': 'Tips Sehat Ala Dokter Keluarga',
+      'date': '01-06-2025',
+      'views': '12',
+      'thumbnail': 'assets/images/carousel-1.jpg',
+      'category': 'GAYA HIDUP'
+    },
+    {
+      'title': 'Manfaat Tidur Berkualitas untuk Imunitas Tubuh',
+      'date': '01-06-2025',
+      'views': '8',
+      'thumbnail': 'assets/images/carousel-2.jpg',
+      'category': null
+    },
+  ];
+
+  final List<Map<String, String?>> mainNews = [
+    {
+      'title': 'Lanjutkan Kerja Sama dengan 40 FKTP, BPJS Kesehatan Dorong Komitmen FKTP',
+      'date': '01-06-2025',
+      'views': '25',
+      'thumbnail': 'assets/images/carousel-3.jpg',
+      'category': 'BPJS'
+    },
+  ];
+
+  final List<Map<String, String?>> otherNews = [
+    {
+      'title': 'Imunisasi Dasar Posyandu Siborongborong dilaksanakan dengan lancar',
+      'date': '18-03-2025',
+      'views': '3',
+      'thumbnail': 'assets/images/carousel-2.jpg',
+      'category': 'IMUNISASI DASAR',
+    },
+    {
+      'title': 'Dengan BPJS Kesehatan Siborongborong Tetap Optimis Melawan Penyakit Jantung dan Saraf',
+      'date': '18-03-2025',
+      'views': '3',
+      'thumbnail': 'assets/images/carousel-3.jpg',
+      'category': null,
+    },
+    {
+      'title': 'Mobile JKN Penerangan Perjalanan Widi dalam Melawan Strok',
+      'date': '18-03-2025',
+      'views': '3',
+      'thumbnail': 'assets/images/carousel-1.jpg',
+      'category': null,
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -26,7 +77,6 @@ class _ArticleScreenState extends State<ArticleScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Set status bar to be transparent with dark icons
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
@@ -38,206 +88,10 @@ class _ArticleScreenState extends State<ArticleScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search Bar
-            Container(
-              padding: const EdgeInsets.fromLTRB(16.0, 14.0, 16.0, 10.0),
-              child: Container(
-                height: 38,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(19),
-                ),
-                child: TextField(
-                  textAlignVertical: TextAlignVertical.center,
-                  style: TextStyle(
-                    fontFamily: 'KohSantepheap',
-                    fontSize: 12,
-                    color: Colors.grey.shade800,
-                  ),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    hintText: 'Cari berita, tips sehat atau gaya hidup',
-                    hintStyle: TextStyle(
-                      fontFamily: 'KohSantepheap',
-                      color: Colors.grey.shade500,
-                      fontSize: 12,
-                    ),
-                    prefixIcon: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Icon(Icons.search,
-                          color: Color(0xFF06489F), size: 18),
-                    ),
-                    prefixIconConstraints:
-                        BoxConstraints(minWidth: 36, minHeight: 36),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-            ),
-
-            // Artikel Title
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, bottom: 12.0),
-              child: Text(
-                'Artikel',
-                style: TextStyle(
-                  fontFamily: 'KohSantepheap',
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF06489F),
-                ),
-              ),
-            ),
-
-            // Tab Bar
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16.0),
-              decoration: const BoxDecoration(),
-              child: Column(
-                children: [
-                  TabBar(
-                    controller: _tabController,
-                    indicator: const BoxDecoration(),
-                    unselectedLabelColor: Colors.grey.shade600,
-                    labelColor: const Color(0xFF06489F),
-                    labelStyle: const TextStyle(
-                      fontFamily: 'KohSantepheap',
-                      fontWeight: FontWeight.bold,
-                    ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontFamily: 'KohSantepheap',
-                      fontWeight: FontWeight.w500,
-                    ),
-                    padding: EdgeInsets.zero,
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    tabs: const [
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('Rekomendasi'),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('Berita Utama'),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('Berita'),
-                      ),
-                    ],
-                  ),
-                  // Custom animated indicator
-                  Container(
-                    height: 4,
-                    margin: const EdgeInsets.only(top: 2.0),
-                    child: AnimatedBuilder(
-                      animation: _tabController.animation!,
-                      builder: (context, child) {
-                        // Calculate the position based on animation value
-                        final position = _tabController.animation!.value;
-                        // Calculate the width of each tab section
-                        final tabWidth =
-                            (MediaQuery.of(context).size.width - 32) / 3;
-
-                        return Stack(
-                          children: [
-                            // Subtle background line
-                            Container(
-                              height: 1,
-                              color: Colors.grey.shade200,
-                            ),
-                            // Animated indicator
-                            CustomPaint(
-                              size: Size(
-                                  MediaQuery.of(context).size.width - 32, 4),
-                              painter: _TabIndicatorPainter(
-                                position: position,
-                                tabWidth: tabWidth,
-                                color: const Color(0xFF06489F),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Featured Article
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(12.0),
-                child: InkWell(
-                  onTap: () {
-                    // Handle featured article tap
-                  },
-                  splashColor: const Color(0xFF06489F).withOpacity(0.1),
-                  highlightColor: const Color(0xFF06489F).withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(12.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12.0),
-                      child: Stack(
-                        children: [
-                          // Article Image
-                          Image.asset(
-                            'assets/images/carousel-1.jpg', // Using existing carousel image
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                          // Article Text Overlay
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black.withOpacity(0.7),
-                                  ],
-                                ),
-                              ),
-                              child: const Text(
-                                'Lanjutkan Kerja Sama dengan 40 FKTP, BPJS Kesehatan Dorong komitmen FKTP...',
-                                style: TextStyle(
-                                  fontFamily: 'KohSantepheap',
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Berita Lainnya Title
+            _buildSearchBar(),
+            _buildHeader(),
+            _buildTabBar(),
+            _buildFeaturedArticle(),
             Padding(
               padding: const EdgeInsets.only(left: 16.0, bottom: 12.0),
               child: Text(
@@ -250,42 +104,206 @@ class _ArticleScreenState extends State<ArticleScreen>
                 ),
               ),
             ),
-
-            // News List
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TabBarView(
+                controller: _tabController,
                 children: [
-                  _buildNewsItem(
-                    title:
-                        'Imunisasi Dasar Posyandu Siborongborong dilaksanakan dengan lancar',
-                    date: '18-03-2025',
-                    views: '3',
-                    thumbnail: 'assets/images/carousel-2.jpg',
-                    category: 'IMUNISASI DASAR',
-                  ),
-                  _buildNewsItem(
-                    title:
-                        'Dengan BPJS Kesehatan Siborongborong Tetap Optimis Melawan Penyakit Jantung dan Saraf',
-                    date: '18-03-2025',
-                    views: '3',
-                    thumbnail: 'assets/images/carousel-3.jpg',
-                    category: null,
-                  ),
-                  _buildNewsItem(
-                    title:
-                        'Mobile JKN Penerangan Perjalanan Widi dalam Melawan Strok',
-                    date: '18-03-2025',
-                    views: '3',
-                    thumbnail: 'assets/images/carousel-1.jpg',
-                    category: null,
-                  ),
+                  _buildNewsList(recommendedArticles),
+                  _buildNewsList(mainNews),
+                  _buildNewsList(otherNews),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16.0, 14.0, 16.0, 10.0),
+      child: Container(
+        height: 38,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(19),
+        ),
+        child: TextField(
+          textAlignVertical: TextAlignVertical.center,
+          style: TextStyle(
+            fontFamily: 'KohSantepheap',
+            fontSize: 12,
+            color: Colors.grey.shade800,
+          ),
+          decoration: InputDecoration(
+            isDense: true,
+            border: InputBorder.none,
+            hintText: 'Cari berita, tips sehat atau gaya hidup',
+            hintStyle: TextStyle(
+              fontFamily: 'KohSantepheap',
+              color: Colors.grey.shade500,
+              fontSize: 12,
+            ),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Icon(Icons.search, color: Color(0xFF06489F), size: 18),
+            ),
+            prefixIconConstraints: BoxConstraints(minWidth: 36, minHeight: 36),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0, bottom: 12.0),
+      child: Text(
+        'Artikel',
+        style: TextStyle(
+          fontFamily: 'KohSantepheap',
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: const Color(0xFF06489F),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        children: [
+          TabBar(
+            controller: _tabController,
+            indicator: const BoxDecoration(),
+            unselectedLabelColor: Colors.grey.shade600,
+            labelColor: const Color(0xFF06489F),
+            labelStyle: const TextStyle(
+              fontFamily: 'KohSantepheap',
+              fontWeight: FontWeight.bold,
+            ),
+            tabs: const [
+              Tab(text: 'Rekomendasi'),
+              Tab(text: 'Berita Utama'),
+              Tab(text: 'Berita'),
+            ],
+          ),
+          Container(
+            height: 4,
+            margin: const EdgeInsets.only(top: 2.0),
+            child: AnimatedBuilder(
+              animation: _tabController.animation!,
+              builder: (context, child) {
+                final position = _tabController.animation!.value;
+                final tabWidth = (MediaQuery.of(context).size.width - 32) / 3;
+                return Stack(
+                  children: [
+                    Container(height: 1, color: Colors.grey.shade200),
+                    CustomPaint(
+                      size: Size(MediaQuery.of(context).size.width - 32, 4),
+                      painter: _TabIndicatorPainter(
+                        position: position,
+                        tabWidth: tabWidth,
+                        color: const Color(0xFF06489F),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeaturedArticle() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12.0),
+        child: InkWell(
+          onTap: () {},
+          splashColor: const Color(0xFF06489F).withOpacity(0.1),
+          highlightColor: const Color(0xFF06489F).withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12.0),
+              child: Stack(
+                children: [
+                  Image.asset(
+                    'assets/images/carousel-1.jpg',
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7),
+                          ],
+                        ),
+                      ),
+                      child: const Text(
+                        'Lanjutkan Kerja Sama dengan 40 FKTP, BPJS Kesehatan Dorong Komitmen FKTP...',
+                        style: TextStyle(
+                          fontFamily: 'KohSantepheap',
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNewsList(List<Map<String, String?>> articles) {
+    return ListView.builder(
+      itemCount: articles.length,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      itemBuilder: (context, index) {
+        final article = articles[index];
+        return _buildNewsItem(
+          title: article['title']!,
+          date: article['date']!,
+          views: article['views']!,
+          thumbnail: article['thumbnail']!,
+          category: article['category'],
+        );
+      },
     );
   }
 
@@ -301,9 +319,7 @@ class _ArticleScreenState extends State<ArticleScreen>
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            // Handle article tap
-          },
+          onTap: () {},
           splashColor: const Color(0xFF06489F).withOpacity(0.1),
           highlightColor: const Color(0xFF06489F).withOpacity(0.05),
           borderRadius: BorderRadius.circular(12.0),
@@ -312,10 +328,8 @@ class _ArticleScreenState extends State<ArticleScreen>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Thumbnail with category label
                 Stack(
                   children: [
-                    // Thumbnail
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12.0),
                       child: Image.asset(
@@ -325,7 +339,6 @@ class _ArticleScreenState extends State<ArticleScreen>
                         fit: BoxFit.cover,
                       ),
                     ),
-                    // Category label (if provided)
                     if (category != null)
                       Positioned(
                         top: 5,
@@ -351,7 +364,6 @@ class _ArticleScreenState extends State<ArticleScreen>
                   ],
                 ),
                 const SizedBox(width: 12),
-                // Article details
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -420,30 +432,16 @@ class _TabIndicatorPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.fill;
 
-    // Calculate the left position of the indicator based on the current tab position
     final double left = position * tabWidth;
-
-    // Indicator width with responsive sizing
     final double indicatorWidth = tabWidth * 0.5;
-
-    // Center the indicator within the tab
     final double startX = left + (tabWidth - indicatorWidth) / 2;
 
-    // Draw a rounded rectangle indicator with a soft shadow
     final RRect indicatorRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(startX, 0, indicatorWidth, 3),
       const Radius.circular(1.5),
     );
 
-    // Add subtle shadow
-    canvas.drawShadow(
-      Path()..addRRect(indicatorRect),
-      color.withOpacity(0.3),
-      2.0,
-      true,
-    );
-
-    // Draw the indicator
+    canvas.drawShadow(Path()..addRRect(indicatorRect), color.withOpacity(0.3), 2.0, true);
     canvas.drawRRect(indicatorRect, paint);
   }
 
