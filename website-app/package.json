@@ -44,6 +44,8 @@
         "docker:check-files": "docker-compose exec app ls -la /var/www/html/",
         "docker:copy-env": "docker-compose exec app bash -c 'if [ ! -f .env ]; then cp .env.example .env 2>/dev/null || echo \"APP_KEY=\" > .env; fi'",
         "docker:complete-fix": "npm run docker:stop-queue && npm run docker:copy-env && npm run docker:emergency-fix && npm run docker:generate-key && npm run docker:start-queue",
+        "docker:composer-only": "docker-compose exec app composer install --no-dev --optimize-autoloader --no-interaction",
+        "docker:fix-now": "docker-compose exec app composer install && docker-compose exec app cp .env.example .env && docker-compose exec app php artisan key:generate",
         "docker:web-only": "docker-compose up -d app webserver db redis",
         "docker:fix-and-restart": "npm run docker:complete-fix && docker-compose restart app webserver"
     },
