@@ -83,7 +83,7 @@ services:
       - CACHE_DRIVER=redis
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    command: sh -c "wait-for-it.sh db:3306 --timeout=60 --strict -- php artisan migrate --force && php artisan cache:table && php artisan migrate --force"
+    command: sh -c "wait-for-it.sh db:3306 --timeout=60 --strict -- php artisan migrate --force"
     networks:
       - puskesmas-network
     depends_on:
