@@ -75,8 +75,6 @@ services:
     container_name: puskesmas-queue
     restart: unless-stopped
     command: sh -c "wait-for-it.sh db:3306 --timeout=60 --strict -- php artisan queue:work --verbose --tries=3 --timeout=90"
-    volumes:
-      - ./:/var/www/html
     networks:
       - puskesmas-network
     depends_on:
@@ -93,8 +91,6 @@ services:
     container_name: puskesmas-scheduler
     restart: unless-stopped
     command: sh -c "wait-for-it.sh db:3306 --timeout=60 --strict -- php artisan schedule:run"
-    volumes:
-      - ./:/var/www/html
     networks:
       - puskesmas-network
     depends_on:
