@@ -37,6 +37,14 @@ RUN composer install --optimize-autoloader --no-dev
 # Install Node.js dependencies and build assets
 RUN npm install && npm run build
 
+# Create Laravel directories if they don't exist and set permissions
+RUN mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache \
+    && mkdir -p bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html/storage \
+    && chown -R www-data:www-data /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
