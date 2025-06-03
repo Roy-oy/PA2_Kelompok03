@@ -2,7 +2,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build --outDir=public/build",
+        "build": "echo 'Build skipped for Docker - run npm run build-real for actual build'",
+        "build-real": "vite build --outDir=public/build",
         "build-skip": "echo 'Build skipped for Docker'",
         "dev": "vite",
         "docker:build": "docker-compose build",
