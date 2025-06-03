@@ -38,7 +38,14 @@
         "docker:restart-workers": "docker-compose restart queue scheduler",
         "docker:init-laravel": "npm run docker:create-env && npm run docker:fix-composer && npm run docker:generate-key && npm run docker:migrate",
         "docker:quick-fix": "npm run docker:stop-queue && npm run docker:fix-composer && npm run docker:generate-key && npm run docker:start-queue",
-        "docker:health-check": "docker-compose exec app php -v && docker-compose exec app composer --version && docker-compose exec db mysql --version"
+        "docker:health-check": "docker-compose exec app php -v && docker-compose exec app composer --version && docker-compose exec db mysql --version",
+        "docker:emergency-fix": "docker-compose exec app composer install --no-dev --optimize-autoloader --no-interaction",
+        "docker:check-vendor": "docker-compose exec app ls -la vendor/",
+        "docker:check-files": "docker-compose exec app ls -la /var/www/html/",
+        "docker:copy-env": "docker-compose exec app bash -c 'if [ ! -f .env ]; then cp .env.example .env 2>/dev/null || echo \"APP_KEY=\" > .env; fi'",
+        "docker:complete-fix": "npm run docker:stop-queue && npm run docker:copy-env && npm run docker:emergency-fix && npm run docker:generate-key && npm run docker:start-queue",
+        "docker:web-only": "docker-compose up -d app webserver db redis",
+        "docker:fix-and-restart": "npm run docker:complete-fix && docker-compose restart app webserver"
     },
     "dependencies": {
         "axios": "^1.6.0"
