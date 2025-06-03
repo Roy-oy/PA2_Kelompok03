@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "vite build --outDir=public/build",
         "dev": "vite",
         "docker:build": "docker-compose build",
         "docker:up": "docker-compose up -d",
@@ -15,7 +15,9 @@
         "docker:full-setup": "npm run docker:setup && npm run docker:start-service && npm run docker:fix-permissions",
         "docker:restart": "docker-compose down && docker-compose up -d --build",
         "docker:clean": "docker-compose down -v && docker system prune -f",
-        "docker:status": "docker-compose ps"
+        "docker:status": "docker-compose ps",
+        "docker:skip-build": "echo 'Skipping npm build in Docker'",
+        "postinstall": "echo 'Dependencies installed successfully'"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
