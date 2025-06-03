@@ -21,7 +21,24 @@
         "docker:skip-build": "echo 'Skipping npm build in Docker'",
         "postinstall": "echo 'Dependencies installed successfully'",
         "check-deps": "npm list axios",
-        "install-axios": "npm install axios@^1.6.0"
+        "install-axios": "npm install axios@^1.6.0",
+        "docker:fix-composer": "docker-compose exec app composer install --optimize-autoloader",
+        "docker:fix-permissions": "docker-compose exec app chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache",
+        "docker:generate-key": "docker-compose exec app php artisan key:generate",
+        "docker:migrate": "docker-compose exec app php artisan migrate",
+        "docker:seed": "docker-compose exec app php artisan db:seed",
+        "docker:shell": "docker-compose exec app bash",
+        "docker:mysql-shell": "docker-compose exec db mysql -u root -p",
+        "docker:check-app": "docker-compose exec app php artisan --version",
+        "docker:check-env": "docker-compose exec app cat .env | grep DB_",
+        "docker:fix-all": "npm run docker:fix-composer && npm run docker:generate-key && npm run docker:fix-permissions",
+        "docker:create-env": "docker-compose exec app cp .env.example .env || echo 'No .env.example found'",
+        "docker:stop-queue": "docker-compose stop queue scheduler",
+        "docker:start-queue": "docker-compose start queue scheduler",
+        "docker:restart-workers": "docker-compose restart queue scheduler",
+        "docker:init-laravel": "npm run docker:create-env && npm run docker:fix-composer && npm run docker:generate-key && npm run docker:migrate",
+        "docker:quick-fix": "npm run docker:stop-queue && npm run docker:fix-composer && npm run docker:generate-key && npm run docker:start-queue",
+        "docker:health-check": "docker-compose exec app php -v && docker-compose exec app composer --version && docker-compose exec db mysql --version"
     },
     "dependencies": {
         "axios": "^1.6.0"
