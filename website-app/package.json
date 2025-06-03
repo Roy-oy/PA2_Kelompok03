@@ -46,6 +46,9 @@
         "docker:complete-fix": "npm run docker:stop-queue && npm run docker:copy-env && npm run docker:emergency-fix && npm run docker:generate-key && npm run docker:start-queue",
         "docker:composer-only": "docker-compose exec app composer install --no-dev --optimize-autoloader --no-interaction",
         "docker:fix-now": "docker-compose exec app composer install && docker-compose exec app cp .env.example .env && docker-compose exec app php artisan key:generate",
+        "docker:fix-storage": "docker-compose exec app chmod -R 775 /var/www/html/storage && docker-compose exec app chmod -R 775 /var/www/html/bootstrap/cache",
+        "docker:fix-storage-full": "docker-compose exec app chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && docker-compose exec app chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache",
+        "docker:laravel-ready": "npm run docker:composer-only && npm run docker:copy-env && npm run docker:generate-key && npm run docker:fix-storage-full",
         "docker:web-only": "docker-compose up -d app webserver db redis",
         "docker:fix-and-restart": "npm run docker:complete-fix && docker-compose restart app webserver"
     },
