@@ -8,7 +8,14 @@
         "docker:up": "docker-compose up -d",
         "docker:down": "docker-compose down",
         "docker:logs": "docker-compose logs -f",
-        "docker:init": "chmod +x docker-init.sh && ./docker-init.sh"
+        "docker:init": "chmod +x docker-init.sh && ./docker-init.sh",
+        "docker:setup": "sudo usermod -aG docker $USER && newgrp docker",
+        "docker:start-service": "sudo systemctl start docker && sudo systemctl enable docker",
+        "docker:fix-permissions": "sudo chown $USER:$USER /home/$USER/.docker -R && sudo chmod g+rwx $HOME/.docker -R",
+        "docker:full-setup": "npm run docker:setup && npm run docker:start-service && npm run docker:fix-permissions",
+        "docker:restart": "docker-compose down && docker-compose up -d --build",
+        "docker:clean": "docker-compose down -v && docker system prune -f",
+        "docker:status": "docker-compose ps"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
