@@ -26,14 +26,31 @@ COPY . /var/www/html
 # Copy custom configurations
 COPY ./docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
+# Create necessary directories and set permissions
+RUN mkdir -p /var/www/html/bootstrap/cache \
+    && mkdir -p /var/www/html/storage/logs \
+    && mkdir -p /var/www/html/storage/framework/cache \
+    && mkdir -p /var/www/html/storage/framework/sessions \
+    && mkdir -p /var/www/html/storage/framework/views \
+    && mkdir -p /var/www/html/storage/app/public
+
+# Set proper permissions before composer install
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
+
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Change ownership of our applications
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
-RUN chmod -R 775 /var/www/html/storage
-RUN chmod -R 775 /var/www/html/bootstrap/cache
+# Generate application key
+RUN php artisan key:generate --force
+
+# Change ownership of our applications (final permissions)
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
