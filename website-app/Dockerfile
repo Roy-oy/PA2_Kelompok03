@@ -41,7 +41,11 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
 # Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev
+RUN composer install --optimize-autoloader --no-dev --no-interaction
+
+# Verify vendor directory exists and has proper permissions
+RUN ls -la /var/www/html/vendor || echo "Vendor directory not found"
+RUN test -f /var/www/html/vendor/autoload.php || (echo "autoload.php not found, reinstalling..." && composer install --optimize-autoloader --no-dev --no-interaction)
 
 # Generate application key
 RUN php artisan key:generate --force
@@ -50,7 +54,8 @@ RUN php artisan key:generate --force
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+    && chmod -R 775 /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html/vendor
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
