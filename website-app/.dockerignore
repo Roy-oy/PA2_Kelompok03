@@ -1,0 +1,40 @@
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker/
+
+# Laravel
+node_modules/
+vendor/
+.env
+.env.local
+.env.production
+.env.backup
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+README.md
+
+# Cache and logs
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
